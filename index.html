@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>龍延宮工作平台</title>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: header → status strip → two-column (近期行事 | 需處理待辦) → tabbed full lists → phase-2 placeholders */
+:root{
+  --bg:#FAF8F7; --surface:#FFFFFF; --line:#E7E0DD; --fg:#211B1A; --muted:#6E6461;
+  --cinnabar:#A6261D; --cinnabar-soft:#F6E3E1; --gold:#8A6414; --gold-soft:#F5ECD6;
+  --ok:#2F6B4F; --ok-soft:#E2F0E8; --warn:#9A5B00; --warn-soft:#FBEBD2; --bad:#B42318; --bad-soft:#FDE4E1;
+  --display:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#151211; --surface:#1E1A19; --line:#342D2B; --fg:#EFE8E5; --muted:#A79C98;
+  --cinnabar:#E8776C; --cinnabar-soft:#3A1F1C; --gold:#D8B05A; --gold-soft:#352B17;
+  --ok:#7CC6A1; --ok-soft:#1C3128; --warn:#E9B35C; --warn-soft:#3A2C14; --bad:#F2877C; --bad-soft:#3E1D1A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#151211; --surface:#1E1A19; --line:#342D2B; --fg:#EFE8E5; --muted:#A79C98;
+  --cinnabar:#E8776C; --cinnabar-soft:#3A1F1C; --gold:#D8B05A; --gold-soft:#352B17;
+  --ok:#7CC6A1; --ok-soft:#1C3128; --warn:#E9B35C; --warn-soft:#3A2C14; --bad:#F2877C; --bad-soft:#3E1D1A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.6}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:20px 48px;display:grid;gap:22px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;border-bottom:2px solid var(--cinnabar);padding-bottom:12px}
+h1{font-family:var(--display);font-size:1.9rem;margin:0;letter-spacing:.06em;text-wrap:balance}
+.sub{color:var(--muted);font-size:.9rem}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+a.btn,button.btn{font:inherit;font-size:.85rem;color:var(--cinnabar);background:transparent;border:1px solid var(--line);border-radius:6px;padding:4px 10px;text-decoration:none;cursor:pointer}
+a.btn:hover,button.btn:hover{border-color:var(--cinnabar)}
+:focus-visible{outline:2px solid var(--cinnabar);outline-offset:2px}
+.notice{border:1px solid var(--warn);background:var(--warn-soft);color:var(--fg);border-radius:8px;padding:10px 14px;font-size:.9rem}
+.strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:2px}
+.stat .k{font-size:.8rem;color:var(--muted);letter-spacing:.05em}
+.stat .v{font-size:1.7rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat.alert .v{color:var(--bad)}
+.stat.gold .v{color:var(--gold)}
+.cols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px}
+section{display:grid;gap:10px;min-width:0}
+h2{font-family:var(--display);font-size:1.2rem;margin:0;display:flex;align-items:baseline;gap:10px}
+h2 small{font-family:var(--body);font-weight:400;font-size:.8rem;color:var(--muted)}
+.list{display:grid;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.row{display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:12px;align-items:start;padding:10px 14px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.date{font-variant-numeric:tabular-nums;font-weight:700;line-height:1.25}
+.date .dow{display:block;font-weight:400;font-size:.78rem;color:var(--muted)}
+.ttl{font-weight:500}
+.meta{font-size:.8rem;color:var(--muted)}
+.pill{display:inline-block;font-size:.75rem;border-radius:999px;padding:1px 9px;white-space:nowrap;border:1px solid transparent}
+.p-bad{background:var(--bad-soft);color:var(--bad)}
+.p-warn{background:var(--warn-soft);color:var(--warn)}
+.p-ok{background:var(--ok-soft);color:var(--ok)}
+.p-gold{background:var(--gold-soft);color:var(--gold)}
+.p-red{background:var(--cinnabar-soft);color:var(--cinnabar)}
+.p-mute{border-color:var(--line);color:var(--muted)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--line)}
+.tabs button{font:inherit;background:none;border:0;border-bottom:2px solid transparent;padding:6px 10px;color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--cinnabar);font-weight:700}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.filters button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:2px 10px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tablebox{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.88rem;min-width:720px}
+th,td{text-align:left;padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:.78rem;letter-spacing:.05em;border-top:0;background:var(--bg)}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.over td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
+.empty{padding:18px 14px;color:var(--muted);font-size:.9rem}
+.future{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.future .card{border:1px dashed var(--line);border-radius:8px;padding:14px;display:grid;gap:4px}
+.future .card b{font-family:var(--display)}
+.foot{font-size:.8rem;color:var(--muted)}
+pre.draft{white-space:pre-wrap;font:inherit;font-size:.85rem;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:6px 0}
+details summary{cursor:pointer}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.case{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;display:grid;gap:8px}
+.case b{font-family:var(--display);font-size:1.05rem}
+#gh .case{align-content:start}
+.bar{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gold)}
+.case .kv{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem}
+.case .kv span b{font-family:var(--body);font-size:1rem;font-variant-numeric:tabular-nums}
+.mini{display:inline-block;width:64px;height:6px;border-radius:999px;background:var(--line);overflow:hidden;vertical-align:middle;margin-right:6px}
+.mini i{display:block;height:100%;background:var(--gold)}
+@media (max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}.strip{grid-template-columns:repeat(2,minmax(0,1fr))}.row{grid-template-columns:72px minmax(0,1fr)}.row .right{grid-column:2}}
+@media (prefers-reduced-motion:no-preference){.list,.tablebox{transition:opacity .2s}}
+</style>
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>龍延宮工作平台</h1>
+      <div class="sub" id="today">讀取中…</div>
+    </div>
+    <div class="links">
+      <a class="btn" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1HQ02MEG6PlqPCZr_zp5nSfnB2LEr6rCIDhChI2TLffs/edit">編輯行事曆</a>
+      <a class="btn" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1ZWkJc1ilot2s8GneKnsD4npq2LgBQpR5Mf4smaPBDuw/edit">編輯待辦</a>
+      <a class="btn" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1ZS5IsVC1dL9HUyPrXR5ypuuavoEdF8-WamwKGEu0PRg/edit">編輯會議總表</a>
+      <a class="btn" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1iRKSySM7T0LRll96DtT8fgPF_MsVyUksySv5w9Ds_jE/edit">編輯申辦進度</a>
+      <a class="btn" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1dsCVh2H2n4ioPwgqdaetMzvSLoGOWZOtFoWMFtQmGWc/edit">編輯大型活動</a>
+      <a class="btn" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1QfNRelkiN4te8oU9seso6oAIytUG6lbyoH-XBVGhkVY/edit">編輯祭典推估</a>
+      <a class="btn" target="_blank" rel="noopener" href="https://github.com/a0981755429-debug/longyan-platform">GitHub 平台</a>
+      <button class="btn" id="refresh" type="button">重新整理</button>
+    </div>
+  </header>
+
+  <div class="notice" id="notice" hidden></div>
+
+  <div class="strip" aria-label="摘要">
+    <div class="stat alert"><span class="k">逾期待辦</span><span class="v" id="s-over">–</span></div>
+    <div class="stat"><span class="k">未完成待辦</span><span class="v" id="s-open">–</span></div>
+    <div class="stat gold"><span class="k">已進入籌備期的活動</span><span class="v" id="s-prep">–</span></div>
+    <div class="stat"><span class="k">未來 30 天行事</span><span class="v" id="s-30">–</span></div>
+  </div>
+
+  <div class="cols">
+    <section>
+      <h2>近期行事 <small>未來 90 天</small></h2>
+      <div class="list" id="upcoming"><div class="empty">正在從雲端硬碟讀取年度行事曆…</div></div>
+    </section>
+    <section>
+      <h2>需要處理 <small>逾期、緊急、兩週內到期與待確認</small></h2>
+      <div class="list" id="attention"><div class="empty">正在讀取待辦追蹤表…</div></div>
+    </section>
+  </div>
+
+  <section>
+    <h2>要發的公告 <small>今天與未來 3 天・依往年發布時點推估</small></h2>
+    <div class="list" id="annsoon"><div class="empty">正在讀取公告排程…</div></div>
+  </section>
+
+  <section>
+    <h2>大型活動 <small>各階段預估期程・下一步</small></h2>
+    <div class="cases" id="events"><div class="empty">正在讀取大型活動期程表…</div></div>
+  </section>
+
+  <section>
+    <h2>申辦期程 <small>籌備處不動產審認・協會管理</small></h2>
+    <div class="cases" id="cases"><div class="empty">正在讀取申辦文書進度表…</div></div>
+  </section>
+
+  <section>
+    <h2>GitHub 規劃 <small id="gh-at">里程碑與規劃型待辦卡</small></h2>
+    <div class="cases" id="gh"><div class="empty">正在讀取 GitHub 規劃…</div></div>
+  </section>
+
+  <section>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-todo" aria-selected="true" type="button">全部待辦</button>
+      <button role="tab" id="tab-cal" aria-selected="false" type="button">年度行事曆</button>
+      <button role="tab" id="tab-mtg" aria-selected="false" type="button">會議記錄</button>
+      <button role="tab" id="tab-ev" aria-selected="false" type="button">大型活動</button>
+      <button role="tab" id="tab-doc" aria-selected="false" type="button">申辦進度</button>
+      <button role="tab" id="tab-lunar" aria-selected="false" type="button">農曆祭典推估</button>
+      <button role="tab" id="tab-ann" aria-selected="false" type="button">公告排程</button>
+      <button role="tab" id="tab-flow" aria-selected="false" type="button">活動流程</button>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div class="tablebox" id="panel"><div class="empty">讀取中…</div></div>
+  </section>
+
+  <section>
+    <h2>第二階段 <small>資料匯入後啟用</small></h2>
+    <div class="future">
+      <div class="card"><b>法會與點燈 KPI</b><span class="meta">普渡、點燈、拜斗、聖誕平安宴的報名數、桌數、收入，並與去年同期比較。資料來源：宮廟管理軟體。</span></div>
+      <div class="card"><b>財務收支</b><span class="meta">依活動代碼彙整收入與支出，呈現每月趨勢與各活動結餘。</span></div>
+      <div class="card"><b>志工與人力</b><span class="meta">各活動所需人力與實際出勤，對應簽到表。</span></div>
+    </div>
+  </section>
+
+  <div class="foot" id="foot">資料來源：雲端硬碟「龍延宮工作平台」資料夾的六份試算表；活動流程與幹部決議整理自 LINE 群組紀錄。修改請在試算表中進行，本頁會自動更新。</div>
+</div>
+
+<script>
+const FILES = {
+  cal: "1HQ02MEG6PlqPCZr_zp5nSfnB2LEr6rCIDhChI2TLffs",
+  todo: "1ZWkJc1ilot2s8GneKnsD4npq2LgBQpR5Mf4smaPBDuw",
+  mtg: "1ZS5IsVC1dL9HUyPrXR5ypuuavoEdF8-WamwKGEu0PRg",
+  doc: "1iRKSySM7T0LRll96DtT8fgPF_MsVyUksySv5w9Ds_jE",
+  ev: "1dsCVh2H2n4ioPwgqdaetMzvSLoGOWZOtFoWMFtQmGWc",
+  lunar: "1QfNRelkiN4te8oU9seso6oAIytUG6lbyoH-XBVGhkVY"
+};
+const DOW = ["日","一","二","三","四","五","六"];
+const state = { cal: null, todo: null, mtg: null, doc: null, ev: null, lunar: null, ann: null, flow: null, dec: null, err: {}, at: {}, tab: "todo", filter: "未完成" };
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const now = new Date(); const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+$("today").textContent = `今天 民國 ${today.getFullYear()-1911} 年 ${today.getMonth()+1} 月 ${today.getDate()} 日（${DOW[today.getDay()]}）`;
+
+function parseCSV(text){
+  const rows=[]; let row=[], f="", q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){ row.push(f); f=""; }
+    else if(c==='\n'){ row.push(f); rows.push(row); row=[]; f=""; }
+    else if(c!=='\r') f+=c;
+  }
+  if(f!==""||row.length){ row.push(f); rows.push(row); }
+  const head=rows.shift()||[];
+  return rows.filter(r=>r.some(v=>v.trim()!=="")).map(r=>Object.fromEntries(head.map((h,i)=>[h.trim(), (r[i]??"").trim()])));
+}
+function decode(b64){
+  const bin=atob(b64); const bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  return new TextDecoder("utf-8").decode(bytes).replace(/^﻿/,"");
+}
+function toDate(s){ const m=/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/.exec(s||""); return m? new Date(+m[1],+m[2]-1,+m[3]) : null; }
+const days = d => Math.round((d - today)/86400000);
+const md = d => `${d.getMonth()+1}/${d.getDate()}`;
+const isDone = s => s==="已完成";
+const isOpen = t => !isDone(t["狀態"]) && t["狀態"]!=="備忘";
+const isOver = t => { const d=toDate(t["期限"]); return d && isOpen(t) && d < today; };
+const dOver = r => { const d=toDate(r["到期日"]); return d && isOpen(r) && d < today; };
+const dSoon = r => { const d=toDate(r["到期日"]); return d && isOpen(r) && days(d)>=0 && days(d)<=30; };
+const pct = r => { const m=/(\d+)/.exec(r["完成度"]||""); return m? Math.min(100,+m[1]) : (isDone(r["狀態"])?100:null); };
+const evDate = r => toDate(r["預估日期"]);
+const evOver = r => { const d=evDate(r); return d && isOpen(r) && d < today; };
+const evSoon = r => { const d=evDate(r); return d && isOpen(r) && days(d)>=0 && days(d)<=30; };
+const roc = d => `${d.getFullYear()-1911}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`;
+
+const PRI={"緊急":0,"高":1,"中":2,"低":3};
+const priRank = t => PRI[t["優先"]] ?? 9;
+const priPill = t => t["優先"]? `<span class="pill ${t["優先"]==="緊急"?"p-bad":t["優先"]==="高"?"p-red":t["優先"]==="中"?"p-gold":"p-mute"}">${esc(t["優先"])}</span>` : "";
+const isHot = t => { if(!isOpen(t)) return false; const d=toDate(t["期限"]); return t["優先"]==="緊急" || (d && days(d)>=0 && days(d)<=14 && priRank(t)<=2); };
+function statusPill(s, over){
+  if(over) return `<span class="pill p-bad">逾期</span>`;
+  const map={"已完成":"p-ok","進行中":"p-gold","未開始":"p-mute","待確認":"p-warn","備忘":"p-mute","已決議":"p-ok","依往例推估":"p-mute","依章程推估":"p-mute","日期待擲杯":"p-warn","日期待定":"p-warn","建議期限":"p-mute","即將到期":"p-warn","已公告":"p-ok","已確認":"p-ok","會議已決議":"p-ok","固定農曆（多年一致）":"p-ok","待請示／待會議":"p-warn"};
+  return `<span class="pill ${map[s]||"p-mute"}">${esc(s||"—")}</span>`;
+}
+
+function renderSummary(){
+  const t=state.todo, c=state.cal;
+  $("s-over").textContent = t? t.filter(isOver).length : "–";
+  $("s-open").textContent = t? t.filter(isOpen).length : "–";
+  if(c){
+    const live=c.filter(e=>{const d=toDate(e["國曆日期"]),p=toDate(e["建議開始籌備"]);return d&&p&&p<=today&&d>=today;});
+    $("s-prep").textContent=live.length;
+    $("s-30").textContent=c.filter(e=>{const d=toDate(e["國曆日期"]);return d&&days(d)>=0&&days(d)<=30;}).length;
+  } else { $("s-prep").textContent="–"; $("s-30").textContent="–"; }
+}
+
+function renderCases(){
+  const el=$("cases");
+  if(!state.doc){ el.innerHTML=`<div class="empty">${state.err.doc? esc(state.err.doc) : "正在讀取申辦文書進度表…"}</div>`; return; }
+  const groups=[...new Set(state.doc.map(r=>r["案件"]).filter(Boolean))];
+  const legal=state.doc.filter(r=>r["編別/項目"]==="法定期限" && toDate(r["到期日"]) && days(toDate(r["到期日"]))>=0)
+    .sort((a,b)=>toDate(a["到期日"])-toDate(b["到期日"]));
+  let html=groups.map(g=>{
+    const rs=state.doc.filter(r=>r["案件"]===g);
+    const work=rs.filter(r=>pct(r)!==null);
+    const avg=work.length? Math.round(work.reduce((s,r)=>s+pct(r),0)/work.length) : 0;
+    const open=rs.filter(isOpen), over=rs.filter(dOver), soon=rs.filter(dSoon), ask=rs.filter(r=>r["狀態"]==="待確認");
+    const next=open.map(r=>({r,d:toDate(r["到期日"])})).filter(x=>x.d&&x.d>=today).sort((a,b)=>a.d-b.d)[0];
+    const stage=rs.find(r=>r["編別/項目"]==="目前階段");
+    return `<div class="case"><b>${esc(g)}</b>
+      ${stage?`<div><span class="pill ${stage["狀態"]==="進行中"?"p-gold":"p-mute"}" style="font-size:.85rem">${esc(stage["內容大綱"])}</span></div>`:""}
+      ${work.length?`<div class="bar" role="img" aria-label="文書完成度 ${avg}%"><i style="width:${avg}%"></i></div>`:""}
+      <div class="kv">${work.length?`<span>文書完成度 <b>${avg}%</b></span>`:""}<span>未完成 <b>${open.length}</b></span><span>待確認 <b>${ask.length}</b></span>${over.length?`<span style="color:var(--bad)">逾期 <b>${over.length}</b></span>`:""}${soon.length?`<span style="color:var(--warn)">30天內到期 <b>${soon.length}</b></span>`:""}</div>
+      <div class="meta">${next? `最近到期：${esc(next.r["編別/項目"])}，${roc(next.d)}（${days(next.d)} 天後）` : "沒有已排定的到期日"}</div></div>`;
+  }).join("");
+  if(legal.length) html+=`<div class="case"><b>法定期限</b>${legal.map(r=>{const d=toDate(r["到期日"]);return `<div><div class="ttl">${esc(r["內容大綱"])}</div><div class="meta">民國 ${roc(d)}・剩 ${days(d)} 天・${esc(r["依據"])}</div></div>`;}).join("")}</div>`;
+  el.innerHTML=html||`<div class="empty">進度表目前沒有資料。</div>`;
+}
+
+function renderEvents(){
+  const el=$("events");
+  if(!state.ev){ el.innerHTML=`<div class="empty">${state.err.ev? esc(state.err.ev) : "正在讀取大型活動期程表…"}</div>`; return; }
+  const codes=[...new Set(state.ev.map(r=>r["活動代碼"]).filter(Boolean))];
+  const evs=codes.map(c=>{const rs=state.ev.filter(r=>r["活動代碼"]===c); return {c,rs,name:rs[0]["大型活動"],d:toDate(rs[0]["活動日"])};})
+    .filter(e=>e.rs.some(isOpen)).sort((a,b)=>(a.d||9e15)-(b.d||9e15));
+  if(!evs.length){ el.innerHTML=`<div class="empty">目前沒有進行中的大型活動。</div>`; return; }
+  el.innerHTML=evs.map(e=>{
+    const done=e.rs.filter(r=>isDone(r["狀態"])).length, n=e.rs.length, pc=Math.round(done/n*100);
+    const over=e.rs.filter(evOver);
+    const next=e.rs.filter(r=>isOpen(r)&&evDate(r)).sort((a,b)=>evDate(a)-evDate(b))[0];
+    const nd=next&&evDate(next);
+    const until=e.d? (days(e.d)>=0? `${days(e.d)} 天後` : "已舉行") : "";
+    return `<div class="case"><b>${esc(e.name)}</b>
+      <div class="meta">${e.d? `${roc(e.d)}（週${DOW[e.d.getDay()]}）・${until}` : "日期待定"}</div>
+      <div class="bar" role="img" aria-label="完成 ${done}/${n} 階段"><i style="width:${pc}%"></i></div>
+      <div class="kv"><span>階段 <b>${done}/${n}</b></span>${over.length?`<span style="color:var(--bad)">已過預估日 <b>${over.length}</b></span>`:""}</div>
+      <div class="meta">${next? `下一步：${esc(next["工作內容"])}，${md(nd)}${days(nd)>=0?`（${days(nd)} 天後）`:"（已過）"}` : "各階段都已完成"}</div></div>`;
+  }).join("");
+}
+
+function renderUpcoming(){
+  const el=$("upcoming");
+  if(!state.cal){ el.innerHTML=`<div class="empty">${state.err.cal? esc(state.err.cal) : "正在從雲端硬碟讀取年度行事曆…"}</div>`; return; }
+  const calItems=state.cal.map(e=>({...e,_d:toDate(e["國曆日期"]),_p:toDate(e["建議開始籌備"])}));
+  const taken=new Set(calItems.filter(e=>e._d).map(e=>+e._d));
+  const lunarItems=(state.lunar||[]).filter(r=>r["類別"]!=="例行").map(r=>({_d:toDate(r["國曆日期"]),_p:null,"農曆":(r["農曆"]||"").replace(/^..年/,""),"活動":r["項目"],"主辦":[r["時間"],r["活動"]].filter(Boolean).join(" "),"日期狀態":r["可信度"],"類別":r["類別"],_lunar:true}))
+    .filter(r=>r._d && !(r["類別"]==="神明聖誕" && taken.has(+r._d)));
+  const items=calItems.concat(lunarItems)
+    .filter(e=>e._d&&days(e._d)>=0&&days(e._d)<=90).sort((a,b)=>a._d-b._d);
+  if(!items.length){ el.innerHTML=`<div class="empty">未來 90 天沒有排定的行事。</div>`; return; }
+  el.innerHTML=items.map(e=>{
+    const n=days(e._d);
+    const when = n===0? `<span class="pill p-red">今天</span>` : `<span class="pill p-mute">${n} 天後</span>`;
+    const prep = e._p && e._p<=today ? `<span class="pill p-gold">籌備中</span>` : (e._p? `<span class="meta">${md(e._p)} 起籌備</span>`:"");
+    return `<div class="row"><div class="date">${md(e._d)}<span class="dow">週${DOW[e._d.getDay()]}${e["農曆"]?`・${esc(e["農曆"])}`:""}</span></div>
+      <div><div class="ttl">${esc(e["活動"])}</div><div class="meta">${esc(e["主辦"])}・${esc(e["日期狀態"])}</div></div>
+      <div class="right" style="display:grid;gap:4px;justify-items:end">${when}${prep}</div></div>`;
+  }).join("");
+}
+
+function renderAttention(){
+  const el=$("attention");
+  if(!state.todo){ el.innerHTML=`<div class="empty">${state.err.todo? esc(state.err.todo) : "正在讀取待辦追蹤表…"}</div>`; return; }
+  const docs=(state.doc||[]).filter(r=>dOver(r)||dSoon(r)).map(r=>({"編號":r["編號"],"待辦事項":r["編別/項目"]+"："+r["內容大綱"],"負責":r["負責"],"來源會議":"申辦・"+r["案件"],"期限":r["到期日"],"狀態":dOver(r)?r["狀態"]:"即將到期"}));
+  const evs=(state.ev||[]).filter(r=>evOver(r)||(evSoon(r)&&days(evDate(r))<=14)).map(r=>({"編號":r["活動代碼"].split("-")[1]||"","待辦事項":r["工作內容"],"負責":r["負責"],"來源會議":"大型活動・"+r["大型活動"],"期限":r["預估日期"],"狀態":evOver(r)?r["狀態"]:"即將到期"}));
+  const items=state.todo.filter(t=>isOver(t)||isHot(t)||t["狀態"]==="待確認").concat(docs,evs)
+    .sort((a,b)=>(isOver(b)-isOver(a)) || ((toDate(a["期限"])||9e15)-(toDate(b["期限"])||9e15)) || (priRank(a)-priRank(b)));
+  if(!items.length){ el.innerHTML=`<div class="empty">目前沒有逾期或待確認的待辦。</div>`; return; }
+  el.innerHTML=items.map(t=>{
+    const d=toDate(t["期限"]);
+    return `<div class="row"><div class="date">${d? md(d):"—"}<span class="dow">${esc(t["編號"])}</span></div>
+      <div><div class="ttl">${esc(t["待辦事項"])}</div><div class="meta">${esc(t["負責"])}・${esc(t["來源會議"])}</div></div>
+      <div class="right" style="display:grid;gap:4px;justify-items:end">${priPill(t)}${statusPill(t["狀態"], isOver(t))}</div></div>`;
+  }).join("");
+}
+
+const FILTERS = {
+  todo: ["未完成","逾期","緊急・高","待確認","進行中","全部"],
+  cal: ["未來","祭典","會議","全部"],
+  mtg: ["全部","缺正式紀錄"],
+  doc: ["未完成","即將到期","籌備處審認","協會","待確認","全部"],
+  ev: ["未來90天","已過預估日","全部"],
+  lunar: ["未來90天","神明聖誕","法會","準備工作","例行","待請示","全部"],
+  ann: ["今天","未來7天","未來30天","週行程公告","全部"],
+  flow: ["接下來60天","祈安禮斗法會","中元普渡","新春大祭改","聖母聖誕","進香／隨香","境主公聖誕","每月犒軍・公差","檢討與收尾","全部"],
+  dec: ["未定案","全部","定價","採購","建設","行政","祭典"]
+};
+function renderPanel(){
+  for(const k of ["todo","cal","mtg","doc","ev","lunar","ann","flow"]) $("tab-"+k).setAttribute("aria-selected", String(state.tab===k));
+  const fs=FILTERS[state.tab]; if(!fs.includes(state.filter)) state.filter=fs[0];
+  $("filters").innerHTML=fs.map(f=>`<button type="button" data-f="${f}" aria-pressed="${state.filter===f}">${f}</button>`).join("");
+  const box=$("panel"), data=state[state.tab];
+  if(!data){ box.innerHTML=`<div class="empty">${esc(state.err[state.tab]||"讀取中…")}</div>`; return; }
+  let html="";
+  if(state.tab==="todo"){
+    const f=state.filter;
+    const rows=data.filter(t=> f==="全部" || (f==="未完成"&&isOpen(t)) || (f==="逾期"&&isOver(t)) || (f==="緊急・高"&&isOpen(t)&&priRank(t)<=1) || t["狀態"]===f);
+    html=`<table><thead><tr><th>編號</th><th>待辦事項</th><th>活動代碼</th><th>負責</th><th>期限</th><th>優先</th><th>狀態</th><th>備註</th></tr></thead><tbody>`+
+      rows.map(t=>`<tr class="${isOver(t)?"over":""}"><td class="num">${esc(t["編號"])}</td><td>${esc(t["待辦事項"])}</td><td>${esc(t["活動代碼"])}</td><td>${esc(t["負責"])}</td><td class="num">${esc(t["期限"])||"—"}</td><td>${priPill(t)}</td><td>${statusPill(t["狀態"],isOver(t))}</td><td class="meta">${esc(t["備註"])}</td></tr>`).join("")+`</tbody></table>`;
+    if(!rows.length) html=`<div class="empty">沒有符合「${esc(f)}」的待辦。</div>`;
+  } else if(state.tab==="cal"){
+    const f=state.filter;
+    const rows=data.filter(e=>{const d=toDate(e["國曆日期"]); return f==="全部" || (f==="未來"&&d&&d>=today) || e["類別"]===f;});
+    html=`<table><thead><tr><th>國曆</th><th>星期</th><th>農曆</th><th>活動</th><th>類別</th><th>開始籌備</th><th>主辦</th><th>日期狀態</th><th>依據與備註</th></tr></thead><tbody>`+
+      rows.map(e=>`<tr><td class="num">${esc(e["國曆日期"])}</td><td>${esc(e["星期"])}</td><td>${esc(e["農曆"])}</td><td>${esc(e["活動"])}</td><td>${esc(e["類別"])}</td><td class="num">${esc(e["建議開始籌備"])}</td><td>${esc(e["主辦"])}</td><td>${statusPill(e["日期狀態"])}</td><td class="meta">${esc(e["依據與備註"])}</td></tr>`).join("")+`</tbody></table>`;
+    if(!rows.length) html=`<div class="empty">沒有符合的行事。</div>`;
+  } else if(state.tab==="ev"){
+    const f=state.filter;
+    const rows=data.filter(r=>{const d=evDate(r); return f==="全部" || (f==="已過預估日"&&evOver(r)) || (f==="未來90天"&&isOpen(r)&&d&&days(d)>=0&&days(d)<=90);})
+      .slice().sort((a,b)=>(evDate(a)||9e15)-(evDate(b)||9e15));
+    html=`<table><thead><tr><th>預估日期</th><th>大型活動</th><th>工作內容</th><th>距活動日</th><th>負責</th><th>狀態</th><th>備註</th></tr></thead><tbody>`+
+      rows.map(r=>{const d=evDate(r), off=+r["距活動日"]; return `<tr class="${evOver(r)?"over":""}"><td class="num">${esc(r["預估日期"])}${d&&isOpen(r)&&days(d)>=0?`<div class="meta">${days(d)} 天後</div>`:""}</td><td>${esc(r["大型活動"])}<div class="meta">活動日 ${esc(r["活動日"])}</div></td><td>${esc(r["工作內容"])}</td><td class="num">${isNaN(off)?"—":off===0?"當天":off<0?`前 ${-off} 天`:`後 ${off} 天`}</td><td style="white-space:nowrap">${esc(r["負責"])}</td><td>${statusPill(evSoon(r)&&!evOver(r)?"即將到期":r["狀態"], evOver(r))}</td><td class="meta">${esc(r["備註"])}${r["依據"]?`<br>${esc(r["依據"])}`:""}</td></tr>`;}).join("")+`</tbody></table>`;
+    if(!rows.length) html=`<div class="empty">沒有符合「${esc(f)}」的階段。</div>`;
+  } else if(state.tab==="ann"){
+    const f=state.filter;
+    const rows=data.map((a,i)=>({a,i,d:toDate(a["發布日期"])})).filter(({a,d})=>f==="全部" || (f==="週行程公告"&&a["公告類型"]==="週行程公告"&&d&&d>=today) || (d&&days(d)>=0&&days(d)<=(f==="今天"?0:f==="未來7天"?7:30)));
+    html=`<table><thead><tr><th>發布</th><th>類型</th><th>公告</th><th>工作人員</th><th>對應工作</th><th>可信度</th></tr></thead><tbody>`+
+      rows.map(({a,i,d})=>`<tr><td class="num">${esc(a["發布日期"])}<div class="meta">週${esc(a["星期"])} ${esc(a["發布時間"])}${d&&days(d)>=0&&days(d)<=30?`・${days(d)===0?"今天":days(d)+" 天後"}`:""}</div></td><td style="white-space:nowrap">${esc(a["公告類型"])}<div class="meta">${esc(a["活動"])}</div></td><td><details><summary>${esc(a["標題"])}</summary><pre class="draft">${esc(a["公告內容草稿"])}</pre><button class="btn" type="button" data-copy="${i}">複製內容</button><div class="meta">${esc(a["發布時點依據"])}</div></details></td><td>${staffInfo(a)}</td><td class="num">${esc(a["對應工作日期"])}<div class="meta">${esc(a["對應農曆"])}</div></td><td>${statusPill(a["可信度"])}</td></tr>`).join("")+`</tbody></table>`;
+    if(!rows.length) html=`<div class="empty">沒有符合「${esc(f)}」的公告。</div>`;
+  } else if(state.tab==="lunar"){
+    const f=state.filter;
+    const rows=data.filter(r=>{const d=toDate(r["國曆日期"]); return f==="全部" || (f==="未來90天"&&d&&days(d)>=0&&days(d)<=90) || (f==="待請示"&&r["可信度"]==="待請示／待會議") || r["類別"]===f;});
+    html=`<table><thead><tr><th>國曆</th><th>星期</th><th>農曆</th><th>時間</th><th>活動</th><th>項目</th><th>說明</th><th>可信度</th><th>依據</th></tr></thead><tbody>`+
+      rows.map(r=>{const d=toDate(r["國曆日期"]); return `<tr><td class="num">${esc(r["國曆日期"])}${d&&days(d)>=0&&days(d)<=60?`<div class="meta">${days(d)} 天後</div>`:""}</td><td>${esc(r["星期"])}</td><td>${esc(r["農曆"])}</td><td class="num">${esc(r["時間"])||"—"}</td><td style="white-space:nowrap">${esc(r["活動"])}<div class="meta">${esc(r["類別"])}</div></td><td>${esc(r["項目"])}</td><td class="meta">${esc(r["說明／工作內容"])}</td><td>${statusPill(r["可信度"])}</td><td class="meta">${esc(r["依據（LINE 對話中的實際日期）"])}</td></tr>`;}).join("")+`</tbody></table>`;
+    if(!rows.length) html=`<div class="empty">沒有符合「${esc(f)}」的項目。</div>`;
+  } else if(state.tab==="doc"){
+    const f=state.filter;
+    const rows=data.filter(r=> f==="全部" || (f==="未完成"&&isOpen(r)) || (f==="即將到期"&&(dOver(r)||dSoon(r))) || r["案件"]===f || r["狀態"]===f);
+    html=`<table><thead><tr><th>編號</th><th>編別／項目</th><th>內容大綱</th><th>完成度</th><th>狀態</th><th>到期日</th><th>負責</th><th>依據・備註</th></tr></thead><tbody>`+
+      rows.map(r=>{const p=pct(r), d=toDate(r["到期日"]); const due=d? `${esc(r["到期日"])}${isOpen(r)&&days(d)>=0?`<div class="meta">${days(d)} 天後</div>`:""}`:"—";
+        return `<tr class="${dOver(r)?"over":""}"><td class="num">${esc(r["編號"])}</td><td>${esc(r["編別/項目"])}<div class="meta">${esc(r["案件"])}</div></td><td>${esc(r["內容大綱"])}</td><td class="num">${p===null?"—":`<span class="mini"><i style="width:${p}%"></i></span>${p}%`}</td><td>${statusPill(dSoon(r)&&!dOver(r)?"即將到期":r["狀態"], dOver(r))}</td><td class="num">${due}</td><td style="white-space:nowrap">${esc(r["負責"])}</td><td class="meta">${esc(r["依據"])}${r["備註"]?`<br>${esc(r["備註"])}`:""}</td></tr>`;}).join("")+`</tbody></table>`;
+    if(!rows.length) html=`<div class="empty">沒有符合「${esc(f)}」的項目。</div>`;
+  } else if(state.tab==="flow"){
+    const f=state.filter;
+    const rows=flowRows().filter(r=> f==="全部" || (f==="接下來60天"&&r._d&&days(r._d)>=0&&days(r._d)<=60) || (f==="聖母聖誕"&&r["活動"].startsWith("聖母聖誕")) || (f==="每月犒軍・公差"&&/犒軍|公差/.test(r["活動"])) || (f==="檢討與收尾"&&isWrap(r)) || r["活動"]===f)
+      .sort((a,b)=> f==="接下來60天"||f==="檢討與收尾" ? ((a._d||9e15)-(b._d||9e15)) : 0);
+    html=`<table><thead><tr><th>預估日期</th><th>活動</th><th>距活動日</th><th>時間</th><th>工作項目</th><th>負責・人力</th><th>公告建議</th><th>依據</th></tr></thead><tbody>`+
+      rows.map(r=>{const off=+r["距活動日"]; return `<tr><td class="num">${r._d?`${r._d.getFullYear()}-${String(r._d.getMonth()+1).padStart(2,"0")}-${String(r._d.getDate()).padStart(2,"0")}${days(r._d)>=0&&days(r._d)<=60?`<div class="meta">${days(r._d)===0?"今天":days(r._d)+" 天後"}</div>`:""}`:"依活動日"}</td><td style="white-space:nowrap">${esc(r["活動"])}<div class="meta">${esc(r["D0"])}</div></td><td class="num">${isNaN(off)?"—":off===0?"當天":off<0?`前 ${-off} 天`:`後 ${off} 天`}</td><td class="num">${esc(r["時間"])||"—"}</td><td>${esc(r["工作項目"])}${isWrap(r)?` <span class="pill p-gold">收尾</span>`:""}${r["備註"]?`<div class="meta">${esc(r["備註"])}</div>`:""}</td><td>${esc(r["負責"])}${r["人力"]?`<div class="meta">${/非常大量|大量/.test(r["人力"])?`<span class="pill p-warn">${esc(r["人力"])}</span>`:esc(r["人力"])}</div>`:""}</td><td class="meta">${esc(r["公告建議"])}</td><td class="meta">${esc(r["依據"])}</td></tr>`;}).join("")+`</tbody></table>`;
+    if(!rows.length) html=`<div class="empty">沒有符合「${esc(f)}」的步驟。</div>`;
+    html=`<div class="meta" style="padding:8px 10px">依祭祀組群組 2016–2026 實際做法整理；預估日期以下一次活動日（推估，以請示結果為準）往回推。</div>`+html;
+  } else if(state.tab==="dec"){
+    const f=state.filter;
+    const rows=data.filter(d=> f==="全部" || (f==="未定案"&&decOpen(d)) || d["類別"]===f);
+    html=`<table><thead><tr><th>日期</th><th>類別</th><th>議題</th><th>決定方式</th><th>回應人數</th><th>結果</th></tr></thead><tbody>`+
+      rows.map(d=>`<tr class="${decOpen(d)?"over":""}"><td class="num">${esc(d["日期"])}</td><td>${esc(d["類別"])}</td><td>${esc(d["議題"])}<div class="meta">提出：${esc(d["提出"])}</div></td><td class="meta">${esc(d["決定方式"])}</td><td class="num">${esc(d["回應人數"])}<div class="meta">共 14 人</div></td><td>${decOpen(d)?`<span class="pill p-warn">未定案</span> `:""}${esc(d["結果"])}</td></tr>`).join("")+`</tbody></table>`;
+    if(!rows.length) html=`<div class="empty">沒有符合「${esc(f)}」的議案。</div>`;
+    html=`<div class="meta" style="padding:8px 10px">整理自中樞監察、中樞令群組（2023/08 起）。中樞令 12 人＋中樞監察 2 人，過半為 8 人。</div>`+html;
+  } else {
+    const f=state.filter;
+    const rows=data.filter(m=> f==="全部" || m["正式紀錄"]!=="有").slice().reverse();
+    html=`<table><thead><tr><th>日期</th><th>會議</th><th>類型</th><th>正式紀錄</th><th>主要決議</th></tr></thead><tbody>`+
+      rows.map(m=>`<tr><td class="num">${esc(m["西元日期"]||m["民國日期"])}</td><td>${esc(m["會議名稱"])}</td><td>${esc(m["會議類型"])}</td><td>${m["正式紀錄"]==="有"?`<span class="pill p-ok">有</span>`:`<span class="pill p-warn">${esc(m["正式紀錄"]||"無")}</span>`}</td><td class="meta">${esc(m["主要決議"])}</td></tr>`).join("")+`</tbody></table>`;
+    if(!rows.length) html=`<div class="empty">沒有符合的會議。</div>`;
+  }
+  box.innerHTML=html;
+}
+const staffInfo = a => a["服裝"]? `${a["工作人員報到"]?`<div class="meta" style="white-space:nowrap">${esc(a["工作人員報到"])} 到</div>`:""}<div class="meta">${esc(a["服裝"])}</div><div class="meta">${esc(a["集合地點"]||"")}</div>` : `<span class="meta">—</span>`;
+const isWrap = r => /檢討|拆|收尾|領取|歸位|整理神尊|盤點/.test(r["工作項目"]||"");
+const decOpen = d => /不明|未定|未明確|待回宮|列入|開會決定|重新表決|催大家/.test(d["結果"]||"");
+function flowRows(){
+  if(!state.flow) return [];
+  const {steps,d0}=state.flow;
+  return steps.map(r=>{
+    const key=Object.keys(d0).find(k=>r["活動"]===k);
+    let d=null;
+    if(key){ for(const s of d0[key]){ const x=toDate(s); x.setDate(x.getDate()+(+r["距活動日"]||0)); if(days(x)>=-7){ d=x; break; } } }
+    return {...r,_d:d};
+  });
+}
+function renderAnnSoon(){
+  const el=$("annsoon");
+  if(!state.ann){ el.innerHTML=`<div class="empty">${esc(state.err.ann||"正在讀取公告排程…")}</div>`; return; }
+  const items=state.ann.map((a,i)=>({a,i,d:toDate(a["發布日期"])})).filter(x=>x.d&&days(x.d)>=0&&days(x.d)<=3);
+  if(!items.length){ el.innerHTML=`<div class="empty">未來 3 天沒有排定的公告。</div>`; return; }
+  el.innerHTML=items.map(({a,i,d})=>`<div class="row"><div class="date">${md(d)}<span class="dow">週${DOW[d.getDay()]} ${esc(a["發布時間"])}</span></div>
+    <div><div class="ttl">${esc(a["標題"])}</div><div class="meta">${esc(a["公告類型"])}・工作日 ${esc(a["對應工作日期"])}</div>${a["服裝"]?`<div class="meta">工作人員 ${a["工作人員報到"]?esc(a["工作人員報到"])+" 到・":""}${esc(a["服裝"])}・${esc(a["集合地點"]||"本宮")}</div>`:""}<details><summary class="meta">看內容</summary><pre class="draft">${esc(a["公告內容草稿"])}</pre></details></div>
+    <div class="right" style="display:grid;gap:4px;justify-items:end">${days(d)===0?`<span class="pill p-red">今天</span>`:`<span class="pill p-mute">${days(d)} 天後</span>`}<button class="btn" type="button" data-copy="${i}">複製</button></div></div>`).join("");
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button[data-copy]"); if(!b||!state.ann) return;
+  const t=state.ann[+b.dataset.copy]["公告內容草稿"];
+  const done=()=>{const o=b.textContent;b.textContent="已複製";setTimeout(()=>b.textContent=o,1500);};
+  if(navigator.clipboard?.writeText) navigator.clipboard.writeText(t).then(done,()=>{});
+  else { const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");done();}catch(_){} ta.remove(); }
+});
+function renderGH(){
+  const el=$("gh"), g=state.gh;
+  if(!g){ el.innerHTML=`<div class="empty">${esc(state.err.gh||"正在讀取 GitHub 規劃…")}</div>`; return; }
+  if(g.at){ const t=new Date(g.at); $("gh-at").textContent=`里程碑與規劃型待辦卡・${t.getMonth()+1}/${t.getDate()} 更新`; }
+  const ms=g.milestones.map(m=>({...m,_d:toDate(m.due)}));
+  const near=ms.filter(m=>m._d&&days(m._d)>=-7&&(m.open||days(m._d)>=0)).slice(0,3);
+  const msCard=m=>{const tot=m.open+m.closed, pc=tot?Math.round(m.closed/tot*100):0, n=days(m._d);
+    return `<a class="case" style="text-decoration:none;color:inherit" target="_blank" rel="noopener" href="${esc(m.url)}"><b>${esc(m.title)}</b>
+      <div class="meta">${roc(m._d)}（週${DOW[m._d.getDay()]}）・${n>0?n+" 天後":n===0?"今天":"已過 "+(-n)+" 天"}</div>
+      ${tot?`<div class="bar" role="img" aria-label="完成 ${m.closed}/${tot}"><i style="width:${pc}%"></i></div><div class="kv"><span>完成 <b>${m.closed}/${tot}</b></span>${m.open&&n<0?`<span style="color:var(--bad)">逾期未完成 <b>${m.open}</b></span>`:""}</div>`:`<div class="meta">尚未掛待辦卡</div>`}</a>`;};
+  const later=ms.filter(m=>!near.includes(m)&&m._d&&days(m._d)>=0);
+  el.innerHTML = near.map(msCard).join("") +
+    `<div class="case"><b>緊急與高優先</b>${g.hot.length?g.hot.map(i=>`<div><a target="_blank" rel="noopener" href="${esc(i.url)}" style="color:var(--fg)">#${i.n} ${esc(i.title)}</a> <span class="pill ${i.pri==="緊急"?"p-bad":"p-red"}">${esc(i.pri)}</span></div>`).join(""):`<div class="meta">目前沒有。</div>`}
+      <div class="kv"><span>進行中 <b>${g.open}</b></span><span>已完成 <b>${g.closed}</b></span>${Object.entries(g.groups).map(([k,v])=>`<span>${esc(k)} <b>${v}</b></span>`).join("")}</div></div>` +
+    `<div class="case"><b>後續里程碑</b>${later.map(m=>`<div><span class="mini"><i style="width:${(m.open+m.closed)?Math.round(m.closed/(m.open+m.closed)*100):0}%"></i></span><a target="_blank" rel="noopener" href="${esc(m.url)}" style="color:var(--fg)">${esc(m.title)}</a><div class="meta">${roc(m._d)}・剩 ${days(m._d)} 天</div></div>`).join("")}
+      <div class="links"><a class="btn" target="_blank" rel="noopener" href="${esc(g.repo)}/blob/main/docs/%E5%B9%B3%E5%8F%B0%E7%B8%BD%E8%A6%BD.md">完整總覽</a><a class="btn" target="_blank" rel="noopener" href="${esc(g.repo)}/issues">待辦卡</a><a class="btn" target="_blank" rel="noopener" href="${esc(g.repo)}/blob/main/docs/%E8%A6%8F%E5%8A%83/%E5%B9%B3%E5%8F%B0%E8%A6%8F%E5%8A%83.md">規劃書</a></div></div>`;
+}
+function renderStrip2(){ if(state.dec) $("s-dec").textContent=state.dec.filter(decOpen).length; }
+function renderAll(){ renderGH(); renderAnnSoon(); renderSummary(); renderEvents(); renderCases(); renderUpcoming(); renderAttention(); renderPanel(); renderFoot(); }
+function renderFoot(){
+  if(!builtAt) return;
+  const t=new Date(builtAt);
+  $("foot").textContent=`資料來源：雲端硬碟「龍延宮工作平台」的六份試算表，${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,"0")}:${String(t.getMinutes()).padStart(2,"0")} 匯入（每 30 分鐘自動更新）。修改請在試算表中進行。`;
+}
+
+for(const k of ["todo","cal","mtg","doc","ev","lunar","ann","flow"]) $("tab-"+k).addEventListener("click",()=>{state.tab=k;state.filter=FILTERS[k][0];renderPanel();});
+$("filters").addEventListener("click",e=>{const b=e.target.closest("button[data-f]"); if(b){state.filter=b.dataset.f;renderPanel();}});
+
+// 資料來源：GitHub Actions 每 30 分鐘從 Google 試算表匯出 CSV，放在 data/ 底下一起發布。
+const KEYS = Object.keys(FILES);
+const src = {};
+function apply(key, csv, at, how){
+  try{ state[key]=parseCSV(csv.replace(/^\ufeff/,"")); state.err[key]=null; state.at[key]=at; src[key]=how; }
+  catch(_){ state.err[key]="試算表內容無法解析，請確認欄位標題沒有被更改。"; }
+}
+function showNotice(){
+  const n=$("notice"); const missing=KEYS.filter(k=>!state[k]);
+  const msg = missing.length===KEYS.length ? (state.err[missing[0]]||"") : "";
+  n.hidden=!msg; n.textContent=msg;
+}
+let builtAt=null;
+async function loadData(){
+  try{ const m=await fetch("data/meta.json",{cache:"no-store"}); if(m.ok){ builtAt=(await m.json()).at; } }catch(_){}
+  await Promise.all(KEYS.map(async key=>{
+    try{ const r=await fetch(`data/${key}.csv`,{cache:"no-store"}); if(!r.ok) throw 0; apply(key, await r.text(), builtAt? Date.parse(builtAt) : Date.now(), "live"); }
+    catch(_){ state.err[key]="試算表資料讀取失敗，請稍後重新整理。"; }
+  }));
+  showNotice(); renderAll();
+}
+function start(){ loadData(); $("refresh").addEventListener("click", ()=>location.reload()); }
+renderAll();
+fetch("github.json").then(r=>r.ok?r.json():Promise.reject()).then(d=>{state.gh=d;renderAll();}).catch(()=>{state.err.gh="GitHub 規劃讀取失敗，請重新整理頁面。";renderAll();});
+fetch("workflow.json").then(r=>r.ok?r.json():Promise.reject()).then(d=>{state.flow=d;renderAll();}).catch(()=>{state.err.flow="活動流程讀取失敗，請重新整理頁面。";});
+fetch("announcements.json").then(r=>{if(!r.ok) throw 0; return r.json();}).then(d=>{state.ann=d; state.err.ann=null; renderAll();}).catch(()=>{state.err.ann="公告排程讀取失敗，請重新整理頁面。"; renderAll();});
+start();
+</script>
+</body>
+</html>
