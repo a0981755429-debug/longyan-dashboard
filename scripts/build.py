@@ -38,6 +38,8 @@ SHEETS = {
            ["活動代碼", "大型活動", "活動日", "工作內容", "預估日期", "狀態"], ["活動日", "預估日期"]),
     "lunar": ("1QfNRelkiN4te8oU9seso6oAIytUG6lbyoH-XBVGhkVY", "06 農曆祭典推估",
               ["國曆日期", "活動", "項目", "類別", "可信度"], ["國曆日期"]),
+    "rec": ("1osJl3bXDSt2G8u6_dsulcPm-Qb8yAYUTZsUJgzHuvgI", "09 公文與決議追蹤表",
+            ["編號", "類型", "日期", "主旨／決議內容", "負責", "狀態"], ["日期", "期限"]),
 }
 STATIC = ["index.html", "robots.txt", "workflow.json", "announcements.json", "github.json"]
 OUT = pathlib.Path("_site")
@@ -53,7 +55,11 @@ SENSITIVE = [
 # ---- 編號規則（詳見 longyan-platform/docs/規範/編號規則.md）----
 GANZHI = "[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]"
 ACT_CODE = re.compile(rf"^({GANZHI}|行政|建設|會務)-\S+$")
-ID_RULES = {"todo": ("編號", re.compile(r"^T\d{3}$")), "doc": ("編號", re.compile(r"^[A-Z]\d{2,3}$"))}
+ID_RULES = {"todo": ("編號", re.compile(r"^T\d{3}$")), "doc": ("編號", re.compile(r"^[A-Z]\d{2,3}$")),
+            "rec": ("編號", re.compile(r"^[ROI]\d{3}$"))}
+# 標準狀態（詳見 longyan-platform/docs/規範/狀態與權責.md）
+STATUS_OK = {"todo": {"未開始", "進行中", "等待他人", "待確認", "已完成", "取消", "備忘"},
+             "rec": {"未開始", "進行中", "等待他人", "待確認", "已完成", "取消", "備忘"}}
 CODE_COLS = {"todo": "活動代碼", "ev": "活動代碼"}
 
 DATE_OK = re.compile(r"^(\d{4})[-/](\d{1,2})[-/](\d{1,2})")
@@ -115,6 +121,9 @@ def check(key, text):
     if key in CODE_COLS:
         col = CODE_COLS[key]
         bad_ids += [f"第{i}列 {col}「{r.get(col, '')[:12]}」" for i, r in enumerate(rows, start=2) if r.get(col) and not ACT_CODE.match(r[col])]
+    if key in STATUS_OK:
+        bad_ids += [f"第{i}列 狀態「{r.get('狀態', '')[:8]}」不是標準狀態" for i, r in enumerate(rows, start=2)
+                    if r.get("狀態") and r["狀態"] not in STATUS_OK[key]]
     return {"rows": len(rows), "missingCols": missing, "badDates": bad_dates[:20], "badDateCount": len(bad_dates),
             "rocDates": roc_dates, "badIds": bad_ids[:20], "badIdCount": len(bad_ids)}
 

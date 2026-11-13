@@ -111,6 +111,7 @@ details summary{cursor:pointer}
       <a class="btn" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1iRKSySM7T0LRll96DtT8fgPF_MsVyUksySv5w9Ds_jE/edit">編輯申辦進度</a>
       <a class="btn" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1dsCVh2H2n4ioPwgqdaetMzvSLoGOWZOtFoWMFtQmGWc/edit">編輯大型活動</a>
       <a class="btn" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1QfNRelkiN4te8oU9seso6oAIytUG6lbyoH-XBVGhkVY/edit">編輯祭典推估</a>
+      <a class="btn" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1osJl3bXDSt2G8u6_dsulcPm-Qb8yAYUTZsUJgzHuvgI/edit">編輯公文決議</a>
       <a class="btn" target="_blank" rel="noopener" href="https://github.com/a0981755429-debug/longyan-platform">GitHub 平台</a>
       <button class="btn" id="refresh" type="button">重新整理</button>
     </div>
@@ -166,6 +167,7 @@ details summary{cursor:pointer}
       <button role="tab" id="tab-lunar" aria-selected="false" type="button">農曆祭典推估</button>
       <button role="tab" id="tab-ann" aria-selected="false" type="button">公告排程</button>
       <button role="tab" id="tab-flow" aria-selected="false" type="button">活動流程</button>
+      <button role="tab" id="tab-rec" aria-selected="false" type="button">公文與決議</button>
     </div>
     <div class="filters" id="filters"></div>
     <div class="tablebox" id="panel"><div class="empty">讀取中…</div></div>
@@ -191,10 +193,11 @@ const FILES = {
   mtg: "1ZS5IsVC1dL9HUyPrXR5ypuuavoEdF8-WamwKGEu0PRg",
   doc: "1iRKSySM7T0LRll96DtT8fgPF_MsVyUksySv5w9Ds_jE",
   ev: "1dsCVh2H2n4ioPwgqdaetMzvSLoGOWZOtFoWMFtQmGWc",
-  lunar: "1QfNRelkiN4te8oU9seso6oAIytUG6lbyoH-XBVGhkVY"
+  lunar: "1QfNRelkiN4te8oU9seso6oAIytUG6lbyoH-XBVGhkVY",
+  rec: "1osJl3bXDSt2G8u6_dsulcPm-Qb8yAYUTZsUJgzHuvgI"
 };
 const DOW = ["日","一","二","三","四","五","六"];
-const state = { cal: null, todo: null, mtg: null, doc: null, ev: null, lunar: null, ann: null, flow: null, dec: null, err: {}, at: {}, tab: "todo", filter: "未完成" };
+const state = { rec: null, who: new URLSearchParams(location.search).get("who")||"", cal: null, todo: null, mtg: null, doc: null, ev: null, lunar: null, ann: null, flow: null, dec: null, err: {}, at: {}, tab: "todo", filter: "未完成" };
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
@@ -230,7 +233,7 @@ function toDate(s){
 const days = d => Math.round((d - today)/86400000);
 const md = d => `${d.getMonth()+1}/${d.getDate()}`;
 const isDone = s => s==="已完成";
-const isOpen = t => !isDone(t["狀態"]) && t["狀態"]!=="備忘";
+const isOpen = t => !isDone(t["狀態"]) && t["狀態"]!=="備忘" && t["狀態"]!=="取消";
 const isOver = t => { const d=toDate(t["期限"]); return d && isOpen(t) && d < today; };
 const dOver = r => { const d=toDate(r["到期日"]); return d && isOpen(r) && d < today; };
 const dSoon = r => { const d=toDate(r["到期日"]); return d && isOpen(r) && days(d)>=0 && days(d)<=30; };
@@ -246,7 +249,7 @@ const priPill = t => t["優先"]? `<span class="pill ${t["優先"]==="緊急"?"p
 const isHot = t => { if(!isOpen(t)) return false; const d=toDate(t["期限"]); return t["優先"]==="緊急" || (d && days(d)>=0 && days(d)<=14 && priRank(t)<=2); };
 function statusPill(s, over){
   if(over) return `<span class="pill p-bad">逾期</span>`;
-  const map={"已完成":"p-ok","進行中":"p-gold","未開始":"p-mute","待確認":"p-warn","備忘":"p-mute","已決議":"p-ok","依往例推估":"p-mute","依章程推估":"p-mute","日期待擲杯":"p-warn","日期待定":"p-warn","建議期限":"p-mute","即將到期":"p-warn","已公告":"p-ok","已確認":"p-ok","會議已決議":"p-ok","固定農曆（多年一致）":"p-ok","待請示／待會議":"p-warn"};
+  const map={"已完成":"p-ok","等待他人":"p-mute","取消":"p-mute","進行中":"p-gold","未開始":"p-mute","待確認":"p-warn","備忘":"p-mute","已決議":"p-ok","依往例推估":"p-mute","依章程推估":"p-mute","日期待擲杯":"p-warn","日期待定":"p-warn","建議期限":"p-mute","即將到期":"p-warn","已公告":"p-ok","已確認":"p-ok","會議已決議":"p-ok","固定農曆（多年一致）":"p-ok","待請示／待會議":"p-warn"};
   return `<span class="pill ${map[s]||"p-mute"}">${esc(s||"—")}</span>`;
 }
 
@@ -350,18 +353,20 @@ const FILTERS = {
   lunar: ["未來90天","神明聖誕","法會","準備工作","例行","待請示","全部"],
   ann: ["今天","未來7天","未來30天","週行程公告","全部"],
   flow: ["接下來60天","祈安禮斗法會","中元普渡","新春大祭改","聖母聖誕","進香／隨香","境主公聖誕","每月犒軍・公差","檢討與收尾","全部"],
+  rec: ["未完成","會議決議","發文","來文","全部"],
   dec: ["未定案","全部","定價","採購","建設","行政","祭典"]
 };
 function renderPanel(){
-  for(const k of ["todo","cal","mtg","doc","ev","lunar","ann","flow"]) $("tab-"+k).setAttribute("aria-selected", String(state.tab===k));
+  for(const k of ["todo","cal","mtg","doc","ev","lunar","ann","flow","rec"]) $("tab-"+k).setAttribute("aria-selected", String(state.tab===k));
   const fs=FILTERS[state.tab]; if(!fs.includes(state.filter)) state.filter=fs[0];
-  $("filters").innerHTML=fs.map(f=>`<button type="button" data-f="${f}" aria-pressed="${state.filter===f}">${f}</button>`).join("");
+  $("filters").innerHTML=fs.map(f=>`<button type="button" data-f="${f}" aria-pressed="${state.filter===f}">${f}</button>`).join("")+
+    (state.tab==="todo"&&state.todo?`<label class="meta" style="margin-left:auto">我的工作：<select id="who"><option value="">全部人</option>${[...new Set(state.todo.flatMap(t=>(t["負責"]||"").split(/[／\/、,，（）()]/).map(x=>x.replace(/主席|紀錄/g,"").trim()).filter(x=>x&&x.length<=6)))].sort().map(n=>`<option ${n===state.who?"selected":""}>${esc(n)}</option>`).join("")}</select></label>`:"");
   const box=$("panel"), data=state[state.tab];
   if(!data){ box.innerHTML=`<div class="empty">${esc(state.err[state.tab]||"讀取中…")}</div>`; return; }
   let html="";
   if(state.tab==="todo"){
     const f=state.filter;
-    const rows=data.filter(t=> f==="全部" || (f==="未完成"&&isOpen(t)) || (f==="逾期"&&isOver(t)) || (f==="緊急・高"&&isOpen(t)&&priRank(t)<=1) || t["狀態"]===f);
+    const rows=data.filter(t=> !state.who || (t["負責"]||"").includes(state.who)).filter(t=> f==="全部" || (f==="未完成"&&isOpen(t)) || (f==="逾期"&&isOver(t)) || (f==="緊急・高"&&isOpen(t)&&priRank(t)<=1) || t["狀態"]===f);
     html=`<table><thead><tr><th>編號</th><th>待辦事項</th><th>活動代碼</th><th>負責</th><th>期限</th><th>優先</th><th>狀態</th><th>備註</th></tr></thead><tbody>`+
       rows.map(t=>`<tr class="${isOver(t)?"over":""}"><td class="num">${esc(t["編號"])}</td><td>${esc(t["待辦事項"])}</td><td>${esc(t["活動代碼"])}</td><td>${esc(t["負責"])}</td><td class="num">${esc(t["期限"])||"—"}</td><td>${priPill(t)}</td><td>${statusPill(t["狀態"],isOver(t))}</td><td class="meta">${esc(t["備註"])}</td></tr>`).join("")+`</tbody></table>`;
     if(!rows.length) html=`<div class="empty">沒有符合「${esc(f)}」的待辦。</div>`;
@@ -405,6 +410,12 @@ function renderPanel(){
       rows.map(r=>{const off=+r["距活動日"]; return `<tr><td class="num">${r._d?`${r._d.getFullYear()}-${String(r._d.getMonth()+1).padStart(2,"0")}-${String(r._d.getDate()).padStart(2,"0")}${days(r._d)>=0&&days(r._d)<=60?`<div class="meta">${days(r._d)===0?"今天":days(r._d)+" 天後"}</div>`:""}`:"依活動日"}</td><td style="white-space:nowrap">${esc(r["活動"])}<div class="meta">${esc(r["D0"])}</div></td><td class="num">${isNaN(off)?"—":off===0?"當天":off<0?`前 ${-off} 天`:`後 ${off} 天`}</td><td class="num">${esc(r["時間"])||"—"}</td><td>${esc(r["工作項目"])}${isWrap(r)?` <span class="pill p-gold">收尾</span>`:""}${r["備註"]?`<div class="meta">${esc(r["備註"])}</div>`:""}</td><td>${esc(r["負責"])}${r["人力"]?`<div class="meta">${/非常大量|大量/.test(r["人力"])?`<span class="pill p-warn">${esc(r["人力"])}</span>`:esc(r["人力"])}</div>`:""}</td><td class="meta">${esc(r["公告建議"])}</td><td class="meta">${esc(r["依據"])}</td></tr>`;}).join("")+`</tbody></table>`;
     if(!rows.length) html=`<div class="empty">沒有符合「${esc(f)}」的步驟。</div>`;
     html=`<div class="meta" style="padding:8px 10px">依祭祀組群組 2016–2026 實際做法整理；預估日期以下一次活動日（推估，以請示結果為準）往回推。</div>`+html;
+  } else if(state.tab==="rec"){
+    const f=state.filter;
+    const rows=data.filter(r=> f==="全部" || (f==="未完成"&&isOpen(r)) || r["類型"]===f || (f==="會議決議"&&/決議/.test(r["類型"]))).slice().sort((a,b)=>(toDate(b["日期"])||0)-(toDate(a["日期"])||0));
+    html=`<table><thead><tr><th>編號</th><th>日期</th><th>類型</th><th>來源・文號</th><th>主旨／決議內容</th><th>負責</th><th>期限</th><th>狀態</th><th>對應待辦・備註</th></tr></thead><tbody>`+
+      rows.map(r=>{const d=toDate(r["期限"]), over=d&&isOpen(r)&&d<today; return `<tr class="${over?"over":""}"><td class="num">${esc(r["編號"])}</td><td class="num">${esc(r["日期"])}</td><td style="white-space:nowrap">${esc(r["類型"])}</td><td>${esc(r["來源"])}${r["文號"]?`<div class="meta">${esc(r["文號"])}</div>`:""}</td><td>${esc(r["主旨／決議內容"])}</td><td style="white-space:nowrap">${esc(r["負責"])}</td><td class="num">${esc(r["期限"])||"—"}</td><td>${statusPill(r["狀態"],over)}</td><td class="meta">${esc(r["對應待辦"])}${r["備註"]?`<br>${esc(r["備註"])}`:""}</td></tr>`;}).join("")+`</tbody></table>`;
+    if(!rows.length) html=`<div class="empty">沒有符合「${esc(f)}」的項目。</div>`;
   } else if(state.tab==="dec"){
     const f=state.filter;
     const rows=data.filter(d=> f==="全部" || (f==="未定案"&&decOpen(d)) || d["類別"]===f);
@@ -475,7 +486,8 @@ function renderFoot(){
   $("foot").textContent=`資料來源：雲端硬碟「龍延宮工作平台」的六份試算表，${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,"0")}:${String(t.getMinutes()).padStart(2,"0")} 匯入（每 30 分鐘自動更新）。修改請在試算表中進行。`;
 }
 
-for(const k of ["todo","cal","mtg","doc","ev","lunar","ann","flow"]) $("tab-"+k).addEventListener("click",()=>{state.tab=k;state.filter=FILTERS[k][0];renderPanel();});
+for(const k of ["todo","cal","mtg","doc","ev","lunar","ann","flow","rec"]) $("tab-"+k).addEventListener("click",()=>{state.tab=k;state.filter=FILTERS[k][0];renderPanel();});
+$("filters").addEventListener("change",e=>{ if(e.target.id==="who"){ state.who=e.target.value; const u=new URL(location.href); state.who?u.searchParams.set("who",state.who):u.searchParams.delete("who"); history.replaceState(null,"",u); renderPanel(); }});
 $("filters").addEventListener("click",e=>{const b=e.target.closest("button[data-f]"); if(b){state.filter=b.dataset.f;renderPanel();}});
 
 // 資料來源：GitHub Actions 每 30 分鐘從 Google 試算表匯出 CSV，放在 data/ 底下一起發布。
@@ -507,7 +519,7 @@ function renderHealth(){
   const issues=rows.reduce((a,s)=>a+(s.badDateCount||0)+(s.badIdCount||0),0);
   const masked=rows.reduce((a,s)=>a+Object.values(s.masked||{}).reduce((x,y)=>x+y,0),0);
   const bad=rows.filter(s=>s.status!=="ok").length;
-  el.querySelector("summary").textContent=`資料檢查：${bad?`${bad} 份讀取異常・`:"6 份試算表正常・"}${issues?`${issues} 筆格式待修正・`:""}${masked?`已自動遮蔽 ${masked} 筆個資・`:""}更新於 ${hm(builtAt)}`;
+  el.querySelector("summary").textContent=`資料檢查：${bad?`${bad} 份讀取異常・`:`${rows.length} 份試算表正常・`}${issues?`${issues} 筆格式待修正・`:""}${masked?`已自動遮蔽 ${masked} 筆個資・`:""}更新於 ${hm(builtAt)}`;
   el.querySelector("div").innerHTML=`<table><thead><tr><th>試算表</th><th>狀態</th><th>筆數</th><th>資料時間</th><th>需修正</th></tr></thead><tbody>`+rows.map(s=>{
     const st=s.status==="ok"?`<span class="pill p-ok">正常</span>`:s.status==="fallback"?`<span class="pill p-warn">沿用上一版</span>`:`<span class="pill p-bad">失敗</span>`;
     const fix=[...(s.badDates||[]).map(x=>"日期格式："+x),...(s.badIds||[]).map(x=>"編號："+x)];
