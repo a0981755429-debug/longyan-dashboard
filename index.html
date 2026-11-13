@@ -180,6 +180,7 @@ details summary{cursor:pointer}
     </div>
   </section>
 
+  <details class="foot" id="health"><summary>資料檢查</summary><div class="tablebox" style="margin-top:8px"></div></details>
   <div class="foot" id="foot">資料來源：雲端硬碟「龍延宮工作平台」資料夾的六份試算表；活動流程與幹部決議整理自 LINE 群組紀錄。修改請在試算表中進行，本頁會自動更新。</div>
 </div>
 
@@ -219,7 +220,13 @@ function decode(b64){
   for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
   return new TextDecoder("utf-8").decode(bytes).replace(/^﻿/,"");
 }
-function toDate(s){ const m=/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/.exec(s||""); return m? new Date(+m[1],+m[2]-1,+m[3]) : null; }
+function toDate(s){
+  s=String(s||"").trim();
+  let m=/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/.exec(s);
+  if(m){ let y=+m[1]; if(y<1911) y+=1911; return new Date(y,+m[2]-1,+m[3]); }   // 0113/12/14 這類被試算表補零的民國年
+  m=/^(\d{2,3})[-/.](\d{1,2})[-/.](\d{1,2})/.exec(s);                       // 民國 115/11/15、115.11.15
+  return m? new Date(+m[1]+1911,+m[2]-1,+m[3]) : null;
+}
 const days = d => Math.round((d - today)/86400000);
 const md = d => `${d.getMonth()+1}/${d.getDate()}`;
 const isDone = s => s==="已完成";
@@ -409,7 +416,7 @@ function renderPanel(){
     const f=state.filter;
     const rows=data.filter(m=> f==="全部" || m["正式紀錄"]!=="有").slice().reverse();
     html=`<table><thead><tr><th>日期</th><th>會議</th><th>類型</th><th>正式紀錄</th><th>主要決議</th></tr></thead><tbody>`+
-      rows.map(m=>`<tr><td class="num">${esc(m["西元日期"]||m["民國日期"])}</td><td>${esc(m["會議名稱"])}</td><td>${esc(m["會議類型"])}</td><td>${m["正式紀錄"]==="有"?`<span class="pill p-ok">有</span>`:`<span class="pill p-warn">${esc(m["正式紀錄"]||"無")}</span>`}</td><td class="meta">${esc(m["主要決議"])}</td></tr>`).join("")+`</tbody></table>`;
+      rows.map(m=>`<tr><td class="num">${(()=>{const d=toDate(m["西元日期"])||toDate(m["民國日期"]);return d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`:esc(m["西元日期"]||m["民國日期"]);})()}</td><td>${esc(m["會議名稱"])}</td><td>${esc(m["會議類型"])}</td><td>${m["正式紀錄"]==="有"?`<span class="pill p-ok">有</span>`:`<span class="pill p-warn">${esc(m["正式紀錄"]||"無")}</span>`}</td><td class="meta">${esc(m["主要決議"])}</td></tr>`).join("")+`</tbody></table>`;
     if(!rows.length) html=`<div class="empty">沒有符合的會議。</div>`;
   }
   box.innerHTML=html;
@@ -478,21 +485,44 @@ function apply(key, csv, at, how){
   try{ state[key]=parseCSV(csv.replace(/^\ufeff/,"")); state.err[key]=null; state.at[key]=at; src[key]=how; }
   catch(_){ state.err[key]="試算表內容無法解析，請確認欄位標題沒有被更改。"; }
 }
+let builtAt=null, meta=null;
+const STALE_HOURS=2;
+const hm = t => { const d=new Date(t); return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; };
 function showNotice(){
-  const n=$("notice"); const missing=KEYS.filter(k=>!state[k]);
-  const msg = missing.length===KEYS.length ? (state.err[missing[0]]||"") : "";
-  n.hidden=!msg; n.textContent=msg;
+  const n=$("notice"), msgs=[];
+  const missing=KEYS.filter(k=>!state[k]);
+  if(missing.length===KEYS.length && state.err[missing[0]]) msgs.push(state.err[missing[0]]);
+  if(meta?.sheets){
+    const fb=Object.values(meta.sheets).filter(s=>s.status==="fallback");
+    const fail=Object.values(meta.sheets).filter(s=>s.status==="failed");
+    if(fb.length) msgs.push(`${fb.map(s=>s.name).join("、")} 這次讀取失敗，暫時顯示 ${fb.map(s=>s.sourceAt?hm(s.sourceAt):"上一次").join("、")} 的資料。`);
+    if(fail.length) msgs.push(`${fail.map(s=>s.name).join("、")} 讀取失敗，目前沒有資料可顯示。`);
+  }
+  if(builtAt){ const h=(Date.now()-Date.parse(builtAt))/3600000; if(h>STALE_HOURS) msgs.push(`資料已經 ${Math.floor(h)} 小時沒有更新（最後更新 ${hm(builtAt)}），自動更新可能暫停了。`); }
+  n.hidden=!msgs.length; n.textContent=msgs.join(" ");
 }
-let builtAt=null;
+function renderHealth(){
+  const el=$("health"); if(!el||!meta?.sheets) return;
+  const rows=Object.values(meta.sheets);
+  const issues=rows.reduce((a,s)=>a+(s.badDateCount||0)+(s.badIdCount||0),0);
+  const masked=rows.reduce((a,s)=>a+Object.values(s.masked||{}).reduce((x,y)=>x+y,0),0);
+  const bad=rows.filter(s=>s.status!=="ok").length;
+  el.querySelector("summary").textContent=`資料檢查：${bad?`${bad} 份讀取異常・`:"6 份試算表正常・"}${issues?`${issues} 筆格式待修正・`:""}${masked?`已自動遮蔽 ${masked} 筆個資・`:""}更新於 ${hm(builtAt)}`;
+  el.querySelector("div").innerHTML=`<table><thead><tr><th>試算表</th><th>狀態</th><th>筆數</th><th>資料時間</th><th>需修正</th></tr></thead><tbody>`+rows.map(s=>{
+    const st=s.status==="ok"?`<span class="pill p-ok">正常</span>`:s.status==="fallback"?`<span class="pill p-warn">沿用上一版</span>`:`<span class="pill p-bad">失敗</span>`;
+    const fix=[...(s.badDates||[]).map(x=>"日期格式："+x),...(s.badIds||[]).map(x=>"編號："+x)];
+    const more=(s.badDateCount||0)+(s.badIdCount||0)-fix.length;
+    return `<tr><td>${esc(s.name)}</td><td>${st}${s.error?`<div class="meta">${esc(s.error)}</div>`:""}${s.masked&&Object.keys(s.masked).length?`<div class="meta">遮蔽：${esc(Object.entries(s.masked).map(([k,v])=>k+" "+v).join("、"))}</div>`:""}</td><td class="num">${s.rows??"—"}</td><td class="num">${s.sourceAt?hm(s.sourceAt):"—"}</td><td class="meta">${fix.length?fix.map(esc).join("<br>")+(more>0?`<br>…另 ${more} 筆`:""):"—"}</td></tr>`;}).join("")+`</tbody></table>`;
+}
 async function loadData(){
-  try{ const m=await fetch("data/meta.json",{cache:"no-store"}); if(m.ok){ builtAt=(await m.json()).at; } }catch(_){}
+  try{ const m=await fetch("data/meta.json",{cache:"no-store"}); if(m.ok){ meta=await m.json(); builtAt=meta.at; } }catch(_){}
   await Promise.all(KEYS.map(async key=>{
     try{ const r=await fetch(`data/${key}.csv`,{cache:"no-store"}); if(!r.ok) throw 0; apply(key, await r.text(), builtAt? Date.parse(builtAt) : Date.now(), "live"); }
     catch(_){ state.err[key]="試算表資料讀取失敗，請稍後重新整理。"; }
   }));
-  showNotice(); renderAll();
+  showNotice(); renderAll(); renderHealth();
 }
-function start(){ loadData(); $("refresh").addEventListener("click", ()=>location.reload()); }
+function start(){ loadData(); setInterval(showNotice, 600000); $("refresh").addEventListener("click", ()=>location.reload()); }
 renderAll();
 fetch("github.json").then(r=>r.ok?r.json():Promise.reject()).then(d=>{state.gh=d;renderAll();}).catch(()=>{state.err.gh="GitHub 規劃讀取失敗，請重新整理頁面。";renderAll();});
 fetch("workflow.json").then(r=>r.ok?r.json():Promise.reject()).then(d=>{state.flow=d;renderAll();}).catch(()=>{state.err.flow="活動流程讀取失敗，請重新整理頁面。";});
