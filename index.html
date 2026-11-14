@@ -129,6 +129,27 @@ details summary{cursor:pointer}
 @media(max-width:600px){.ly-cal-day{min-height:73px;padding:4px 2px}.ly-cal-day .ly-cal-event,.ly-cal-more{display:none}.ly-cal-n{font-size:.82rem}.ly-cal-lunar{font-size:.6rem}.ly-cal-indicators{display:flex;gap:3px;flex-wrap:wrap}.ly-cal-indicators .ly-cal-dot{width:6px;height:6px;margin:0}.ly-cal-toolbar{padding:10px}.ly-cal-toolbar strong{font-size:1.05rem}}
 
 
+
+/* 文書組2.2：月曆先行、分類篩選、行動裝置簡化 */
+.editor-hero{background:var(--surface);color:var(--fg);min-height:0;padding:13px 18px;border:1px solid var(--line);border-left:4px solid var(--cinnabar);border-radius:12px;box-shadow:none;gap:12px}
+.editor-hero:after{display:none}.editor-hero .hero-small{font-size:.65rem;color:var(--gold);letter-spacing:.13em}
+.editor-hero h2{color:var(--fg);font-size:1.06rem;margin:4px 0 2px}.editor-hero p{color:var(--muted);font-size:.81rem}
+.editor-hero-meta{border:0;border-left:1px solid var(--line);border-radius:0;min-width:0;padding:1px 0 1px 16px;background:transparent;color:var(--fg);display:flex;flex-wrap:wrap;gap:15px}
+.editor-hero-meta>div{min-width:98px}.editor-hero-meta b{font-size:1.05rem}.editor-hero-meta small{color:var(--muted)}
+.editor-nav{position:sticky;top:0;z-index:12;background:var(--editor-paper);padding:7px 0;border-bottom:1px solid var(--line)}
+.ly-cal-filters{padding:10px 14px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.ly-cal-filters>span{font-size:.77rem;color:var(--muted);margin-right:5px}
+.ly-cal-filters button{font:600 .77rem var(--body);background:var(--surface);color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:6px 11px;min-height:34px;cursor:pointer}
+.ly-cal-filters button[aria-pressed="true"]{background:var(--cinnabar-soft);color:var(--cinnabar);border-color:var(--cinnabar)}
+.ly-cal-filters [data-cal-filter="all"][aria-pressed="true"]{background:var(--cinnabar);color:white}
+.ly-cal-day:focus-visible{z-index:1}
+.ly-cal-compose-choice{display:grid;gap:6px;margin-top:10px}.ly-cal-compose-choice label{font-size:.76rem;font-weight:600;color:var(--muted)}
+.ly-cal-compose-choice select{width:100%;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:9px;min-height:40px;font:inherit;font-size:.85rem}
+.editor-day-action:disabled{opacity:.5;cursor:not-allowed}
+.editor-draft-status{font-size:.78rem;color:var(--muted)}.editor-guidance{padding-left:10px;border-left:3px solid var(--gold)}
+.strip{gap:9px}.stat{padding:12px 15px;box-shadow:none}.stat .v{font-size:1.52rem}
+@media(max-width:760px){.editor-hero{padding:13px 15px}.editor-hero h2{font-size:1rem}.editor-hero p{display:none}.editor-hero-meta{border-left:0;border-top:1px solid var(--line);padding:9px 0 0;justify-content:space-between}.editor-hero-meta>div{min-width:0}.ly-cal-filters{padding:9px 10px;gap:5px}.ly-cal-filters>span{width:100%}.ly-cal-filters button{min-height:38px;padding:6px 9px;font-size:.73rem}.ly-cal-controls button{min-height:38px}.ly-cal-side-head{padding:13px}.ly-cal-side-body{padding:12px}.ly-cal-day .ly-cal-lunar{max-width:25px}}
+
 /* 文書組・小編工作台 2.1：編輯型宮務儀表板 */
 :root{
   --editor-ink:#352B28;--editor-paper:#F7F4EF;--editor-cream:#FCFAF6;
@@ -297,12 +318,6 @@ header.editor-header{display:flex;gap:16px;align-items:center;padding:8px 0 20px
       <div><small>公文與決議未完成</small><br><b id="editor-hero-doc">讀取中</b></div>
     </div>
   </section>
-  <div class="strip" aria-label="宮務摘要">
-    <div class="stat alert"><span class="k">逾期待辦</span><span class="v" id="s-over">–</span></div>
-    <div class="stat"><span class="k">未完成待辦</span><span class="v" id="s-open">–</span></div>
-    <div class="stat gold"><span class="k">籌備中的活動</span><span class="v" id="s-prep">–</span></div>
-    <div class="stat"><span class="k">未來30天行事</span><span class="v" id="s-30">–</span></div>
-  </div>
   <section id="ly-calendar-section" aria-label="宮務大型行事曆">
     <div class="editor-section-title">
       <div><span class="editor-overline">CALENDAR & SCHEDULE</span><h2>宮務行事月曆 <small>國曆・農曆・公告・工作期限</small></h2></div>
@@ -322,17 +337,25 @@ header.editor-header{display:flex;gap:16px;align-items:center;padding:8px 0 20px
           </div>
         </div>
         <div class="ly-cal-legend"><span><i class="ly-cal-dot ritual"></i>祭典</span><span><i class="ly-cal-dot event"></i>法會活動</span><span><i class="ly-cal-dot admin"></i>行政／公文</span><span><i class="ly-cal-dot task"></i>待辦期限</span><span><i class="ly-cal-dot publish"></i>公告排程</span></div>
-        <div id="ly-cal-weekdays" class="ly-cal-weekdays"></div>
+        <div class="ly-cal-filters" role="group" aria-label="行事分類篩選"><span>行事篩選</span>
+          <button type="button" data-cal-filter="all" aria-pressed="true">顯示全部</button><button type="button" data-cal-filter="ritual" aria-pressed="true">祭典</button><button type="button" data-cal-filter="event" aria-pressed="true">法會活動</button><button type="button" data-cal-filter="publish" aria-pressed="true">公告</button><button type="button" data-cal-filter="admin" aria-pressed="true">行政公文</button><button type="button" data-cal-filter="task" aria-pressed="true">待辦期限</button>
+        </div><div id="ly-cal-weekdays" class="ly-cal-weekdays"></div>
         <div id="ly-cal-grid" class="ly-cal-grid"></div>
         <div id="ly-cal-list" class="ly-cal-list" hidden></div>
         <div class="ly-cal-note">日期內容來自原行事曆、祭典推估、公告排程及工作資料。尚未經確認之事項以來源標示為準。</div>
       </div>
       <aside class="ly-cal-side">
-        <div class="ly-cal-side-head"><strong id="ly-cal-detail-title">當日行事</strong><div class="meta">按日期檢視祭典、文書工作與公告草稿</div><button class="editor-day-action" id="editor-from-selected" type="button">用這個日期撰寫公告 →</button></div>
+        <div class="ly-cal-side-head"><strong id="ly-cal-detail-title">當日行事</strong><div class="meta">按日期檢視祭典、文書工作與公告草稿</div><div class="ly-cal-compose-choice"><label for="ly-cal-public-activity">選擇要對外公告的活動</label><select id="ly-cal-public-activity"></select></div><button class="editor-day-action" id="editor-from-selected" type="button">為選定活動撰寫公告 →</button></div>
         <div id="ly-cal-detail" class="ly-cal-side-body">讀取中…</div>
       </aside>
     </div>
   </section>
+  <div class="strip" aria-label="宮務摘要">
+    <div class="stat alert"><span class="k">逾期待辦</span><span class="v" id="s-over">–</span></div>
+    <div class="stat"><span class="k">未完成待辦</span><span class="v" id="s-open">–</span></div>
+    <div class="stat gold"><span class="k">籌備中的活動</span><span class="v" id="s-prep">–</span></div>
+    <div class="stat"><span class="k">未來30天行事</span><span class="v" id="s-30">–</span></div>
+  </div>
   <section id="editorial-desk">
     <div class="editor-section-title">
       <div><span class="editor-overline">EDITORIAL DESK</span><h2>小編發文中心 <small>公告排程・撰稿・複製文案</small></h2></div>
@@ -340,7 +363,7 @@ header.editor-header{display:flex;gap:16px;align-items:center;padding:8px 0 20px
     </div>
     <div class="editor-panels">
       <article class="editor-panel">
-        <div class="editor-panel-head"><h3>近期待發公告</h3><small id="editor-ann-caption">未來七天</small></div>
+        <div class="editor-panel-head"><h3>近期公告排程</h3><small id="editor-ann-caption">未來七天</small></div>
         <div class="editor-panel-body">
           <div id="annsoon" class="list"><div class="empty">正在讀取公告排程…</div></div>
           <button type="button" class="editor-button" data-to-tab="ann">查看完整公告排程 →</button>
@@ -359,10 +382,10 @@ header.editor-header{display:flex;gap:16px;align-items:center;padding:8px 0 20px
             <div class="editor-actions">
               <button class="editor-button" type="button" id="editor-create">依主題建立草稿</button>
               <button class="editor-button primary" type="button" id="editor-copy">複製文案</button>
-              <button class="editor-button" type="button" id="editor-ai-copy">複製給 ChatGPT 的修改指令</button>
+              <button class="editor-button" type="button" id="editor-ai-copy">複製給 ChatGPT 的修改指令</button><button class="editor-button" type="button" id="editor-download">下載 TXT 草稿</button>
               <a class="editor-button" target="_blank" rel="noopener noreferrer" href="https://chatgpt.com/">開啟 ChatGPT ↗</a>
             </div>
-            <p class="editor-guidance">公告草稿、祭典推估與工作安排不等於正式核定；發布前請人工查核日期、時間、收費及人員資訊。</p>
+            <p class="editor-guidance">公告草稿、祭典推估與工作安排不等於正式核定；發布前請人工查核日期、時間、收費及人員資訊。草稿不會上傳雲端，請下載保存。</p><span id="editor-draft-status" class="editor-draft-status">尚未建立草稿</span>
             <span id="editor-feedback" role="status" aria-live="polite"></span>
           </div>
         </div>
@@ -482,7 +505,7 @@ function statusPill(s, over){
 }
 
 
-const LY_CAL={y:today.getFullYear(),m:today.getMonth(),date:new Date(today),view:window.matchMedia("(max-width:600px)").matches?"week":"month"};
+const LY_CAL={y:today.getFullYear(),m:today.getMonth(),date:new Date(today),view:window.matchMedia("(max-width:600px)").matches?"week":"month",kinds:new Set(["ritual","event","admin","task","publish"])};
 const lySame=(a,b)=>a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
 const lyKey=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const lyKind=s=>/會議|行政|公文|申辦|會務/.test(s)?"admin":/禮斗|普渡|法會|進香|平安宴|聖誕/.test(s)?"event":"ritual";
@@ -497,6 +520,14 @@ function lyItems(d){
  (state.rec||[]).forEach(r=>{if(isOpen(r)&&lySame(toDate(r["期限"]),d))add("文書期限："+(r["主旨／決議內容"]||r["來源"]),"admin",(r["負責"]||"")+"・"+(r["狀態"]||""),"rec|"+r["編號"]);});
  return out;
 }
+function lyVisibleItems(d){return lyItems(d).filter(x=>LY_CAL.kinds.has(x.kind));}
+function lyPublicActivities(d){
+ const out=[],seen=new Set();
+ function add(name,status){name=String(name||"").trim();if(name&&!seen.has(name)){seen.add(name);out.push({name,status:String(status||"")});}}
+ (state.cal||[]).forEach(r=>{if(lySame(toDate(r["國曆日期"]),d)&&/^(祭典|法會|活動|進香|例行)$/.test((r["類別"]||"").trim()))add(r["活動"],r["日期狀態"]);});
+ (state.lunar||[]).forEach(r=>{if(lySame(toDate(r["國曆日期"]),d)&&/^(神明聖誕|祭典|法會|例行)$/.test((r["類別"]||"").trim()))add(r["項目"]||r["活動"],r["可信度"]);});
+ return out;
+}
 function lyLunar(d){
  const r=(state.lunar||[]).find(x=>lySame(toDate(x["國曆日期"]),d)&&x["農曆"])||(state.cal||[]).find(x=>lySame(toDate(x["國曆日期"]),d)&&x["農曆"]);
  if(r)return (r["農曆"]||"").replace(/^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]年/,"");
@@ -504,25 +535,31 @@ function lyLunar(d){
 }
 function renderLYCalendar(){
  const grid=$("ly-cal-grid"),lst=$("ly-cal-list");if(!grid)return;
- $("ly-cal-title").textContent="民國"+(LY_CAL.y-1911)+"年 "+(LY_CAL.m+1)+"月";
+ document.querySelectorAll("[data-cal-filter]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.calFilter==="all"?LY_CAL.kinds.size===5:LY_CAL.kinds.has(b.dataset.calFilter))));
+
  document.querySelectorAll("[data-cal-view]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.calView===LY_CAL.view)));
  $("ly-cal-weekdays").hidden=LY_CAL.view==="list";grid.hidden=LY_CAL.view==="list";lst.hidden=LY_CAL.view!=="list";
  $("ly-cal-weekdays").innerHTML=DOW.map(n=>"<div>週"+n+"</div>").join("");
  const begin=new Date(LY_CAL.y,LY_CAL.m,1),end=new Date(LY_CAL.y,LY_CAL.m+1,0),start=new Date(begin);
  if(LY_CAL.view==="week"){start.setTime(LY_CAL.date.getTime());start.setDate(start.getDate()-start.getDay());}
  else start.setDate(1-begin.getDay());
+ if(LY_CAL.view==="week"){const stop=new Date(start);stop.setDate(start.getDate()+6);$("ly-cal-title").textContent="民國"+(start.getFullYear()-1911)+"年 "+(start.getMonth()+1)+"/"+start.getDate()+"－"+(start.getFullYear()===stop.getFullYear()?"":"民國"+(stop.getFullYear()-1911)+"年 ")+(stop.getMonth()+1)+"/"+stop.getDate();}
+ else $("ly-cal-title").textContent="民國"+(LY_CAL.y-1911)+"年 "+(LY_CAL.m+1)+"月";
  if(LY_CAL.view==="list"){
-  const rows=[];for(let day=1;day<=end.getDate();day++){const d=new Date(LY_CAL.y,LY_CAL.m,day),items=lyItems(d);if(!items.length)continue;
+  const rows=[];for(let day=1;day<=end.getDate();day++){const d=new Date(LY_CAL.y,LY_CAL.m,day),items=lyVisibleItems(d);if(!items.length)continue;
    rows.push('<button type="button" data-ly-date="'+lyKey(d)+'"><strong style="min-width:55px">'+(d.getMonth()+1)+'/'+day+'<br><small>週'+DOW[d.getDay()]+'</small></strong><span>'+items.map(e=>'<span class="ly-cal-event '+e.kind+'">'+esc(e.n)+'</span>').join("")+'</span></button>');}
   lst.innerHTML=rows.join("")||'<div class="empty">本月尚無排定事項。</div>';
  }else{
   const len=LY_CAL.view==="week"?7:Math.ceil((begin.getDay()+end.getDate())/7)*7,cells=[];
-  for(let i=0;i<len;i++){const d=new Date(start);d.setDate(start.getDate()+i);const items=lyItems(d),chosen=lySame(d,LY_CAL.date);
+  for(let i=0;i<len;i++){const d=new Date(start);d.setDate(start.getDate()+i);const items=lyVisibleItems(d),chosen=lySame(d,LY_CAL.date);
    cells.push('<button type="button" data-ly-date="'+lyKey(d)+'" class="ly-cal-day'+(d.getMonth()!==LY_CAL.m?' outside':'')+(chosen?' selected':'')+(lySame(d,today)?' today':'')+'" aria-pressed="'+chosen+'" aria-label="'+lyKey(d)+' '+items.length+'項行事"><span class="ly-cal-dates"><span class="ly-cal-n">'+d.getDate()+'</span><span class="ly-cal-lunar">'+esc(lyLunar(d))+'</span></span><span class="ly-cal-indicators">'+items.slice(0,4).map(e=>'<i class="ly-cal-dot '+e.kind+'"></i>').join("")+'</span>'+items.slice(0,3).map(e=>'<span class="ly-cal-event '+e.kind+'">'+esc(e.n)+'</span>').join("")+(items.length>3?'<span class="ly-cal-more">另有 '+(items.length-3)+' 項</span>':'')+'</button>');
   }grid.innerHTML=cells.join("");
  }
- const d=LY_CAL.date,items=lyItems(d);
+ const d=LY_CAL.date,items=lyVisibleItems(d);
  $("ly-cal-detail-title").textContent=(d.getMonth()+1)+"月"+d.getDate()+"日・週"+DOW[d.getDay()];
+ const choices=lyPublicActivities(d),selector=$("ly-cal-public-activity");
+ selector.innerHTML=choices.length?choices.map((v,i)=>'<option value="'+i+'">'+esc(v.name)+(v.status?"（"+esc(v.status)+"）":"")+'</option>').join(""):'<option value="">沒有可供對外公告的活動</option>';
+ $("editor-from-selected").disabled=!choices.length;
  $("ly-cal-detail").innerHTML=items.length?items.map(e=>'<div class="ly-cal-detail"><strong><i class="ly-cal-dot '+e.kind+'"></i>'+esc(e.n)+'</strong><small>'+esc(e.info)+'</small></div>').join(""):'<div class="empty">本日沒有已登錄的活動或到期待辦。</div>';
 }
 function lySelect(s){const d=toDate(s);if(!d||isNaN(+d))return;LY_CAL.date=d;LY_CAL.y=d.getFullYear();LY_CAL.m=d.getMonth();renderLYCalendar();}
@@ -532,6 +569,12 @@ $("ly-cal-next").addEventListener("click",()=>lyMove(1));
 $("ly-cal-today").addEventListener("click",()=>lySelect(lyKey(today)));
 document.querySelectorAll("[data-cal-view]").forEach(b=>b.addEventListener("click",()=>{LY_CAL.view=b.dataset.calView;renderLYCalendar();}));
 ["ly-cal-grid","ly-cal-list"].forEach(id=>$(id).addEventListener("click",e=>{const b=e.target.closest("[data-ly-date]");if(b)lySelect(b.dataset.lyDate);}));
+document.querySelectorAll("[data-cal-filter]").forEach(b=>b.addEventListener("click",()=>{
+ const k=b.dataset.calFilter;
+ if(k==="all")LY_CAL.kinds=new Set(["ritual","event","admin","task","publish"]);
+ else if(LY_CAL.kinds.has(k))LY_CAL.kinds.delete(k);else LY_CAL.kinds.add(k);
+ renderLYCalendar();
+}));
 
 function renderSummary(){
   const t=state.todo, c=state.cal;
@@ -754,47 +797,57 @@ function editorPreview(){
  }).slice(0,7);
  p.innerHTML=work.length?work.map(r=>'<div class="office-record"><span class="office-record-title">'+esc(r["主旨／決議內容"]||r["來源"]||"未命名工作")+'</span><span class="office-record-meta">'+esc(r["編號"]||"")+'　'+esc(r["負責"]||"未指派")+'　'+(r["期限"]?'期限 '+esc(r["期限"]):'未設定期限')+'　'+esc(r["狀態"]||"")+'</span></div>').join(""):'<div class="empty">目前沒有尚未完成的公文決議。</div>';
 }
+
+let EDITOR_UNSAVED=false;
 function editorToast(message){$("editor-feedback").textContent=message;}
+function editorDraftNotice(){$("editor-draft-status").textContent=EDITOR_UNSAVED?"● 草稿尚未下載保存":"草稿已下載或尚未修改";}
 function editorSetDraft(title,body,info){
- $("editor-topic").value=title||"";
- $("editor-copy-body").value=body||"";
- editorToast(info||"草稿已載入，請確認日期及文字後再發布。");
- $("editorial-desk").scrollIntoView({behavior:"smooth",block:"start"});
+ if(EDITOR_UNSAVED&&$("editor-copy-body").value.trim()&&!confirm("目前有未下載的草稿，確定要取代嗎？"))return false;
+ $("editor-topic").value=title||"";$("editor-copy-body").value=body||"";
+ EDITOR_UNSAVED=true;editorDraftNotice();editorToast(info||"已建立草稿，尚未發佈。");
+ $("editorial-desk").scrollIntoView({behavior:"smooth",block:"start"});return true;
 }
 function editorFillAnnouncement(index){
- const r=state.ann&&state.ann[index];if(!r)return;
- editorSetDraft(r["標題"]||r["活動"],r["公告內容草稿"]||"","已帶入原排程草稿；尚未代表已核定或已發布。");
+ const r=state.ann?.[index];if(!r)return;
+ editorSetDraft(r["標題"]||r["活動"],r["公告內容草稿"]||"","已帶入原排程草稿，請先確認內容與發布狀態。");
 }
 function editorBuildFromDate(){
- const d=LY_CAL.date;
- const events=lyItems(d).filter(e=>e.kind!=="task"&&e.kind!=="publish");
- const title=events.length?events[0].n:"宮務工作通知";
- const details=events.map(e=>"・"+e.n+(e.info?"（"+e.info+"）":"")).join("\n");
- const dat="民國"+(d.getFullYear()-1911)+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日";
+ const d=LY_CAL.date,choices=lyPublicActivities(d),chosen=choices[Number($("ly-cal-public-activity").value)];
+ if(!chosen){editorToast("當天沒有可供對外公告的祭典活動；請自行建立新公告。");return;}
+ const day="民國"+(d.getFullYear()-1911)+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日";
+ const when=/待|推估|建議|未定/.test(chosen.status)?("【待確認，來源參考日期："+day+"】"):(day+"（發布前請核對）");
  $("editor-type").value="LINE 群組通知";
- editorSetDraft(title,"【"+title+"｜公告草稿】\n\n日期："+dat+"\n"+(details?"工作／活動：\n"+details+"\n":"")+"時間：【待確認】\n集合地點：【待確認】\n注意事項：【待確認】\n\n中和玉勅龍延宮 敬邀","已帶入月曆日期及現有活動，請核對所有待確認資訊。");
+ editorSetDraft(chosen.name,"【"+chosen.name+"｜公告草稿】\n\n活動："+chosen.name+"\n日期："+when+"\n時間：【待確認】\n地點：【待確認】\n注意事項：【待確認】\n\n中和玉勅龍延宮 敬邀","僅帶入選定的祭典或活動，沒有帶入公文、會議或內部工作資訊。");
 }
 function editorBuildBasic(){
- const type=$("editor-type").value;
- const subject=$("editor-topic").value.trim()||"宮務公告（請填主題）";
+ const type=$("editor-type").value,subject=$("editor-topic").value.trim()||"宮務公告（請填主題）";
  const formal=type==="正式公告";
- const text=formal?"【"+subject+"】\n\n主旨："+subject+"\n\n說明：\n一、【請填活動日期、時間及地點】\n二、【請填辦理內容及注意事項】\n\n中和玉勅龍延宮 敬啟":"【"+subject+"｜"+type+"】\n\n各位師兄、師姐及善信大德平安：\n\n"+subject+"，相關安排如下：\n日期：【待確認】\n時間：【待確認】\n地點：【待確認】\n工作內容：【待確認】\n注意事項：【待確認】\n\n敬請大家踴躍參與，感謝支持與協助。\n\n中和玉勅龍延宮 敬邀";
- $("editor-copy-body").value=text;editorToast("已建立格式草稿；【待確認】欄位請補充正確資訊。");
+ const content=formal?"【"+subject+"】\n\n主旨："+subject+"\n\n說明：\n一、【請填日期、時間及地點】\n二、【請填內容及注意事項】\n\n中和玉勅龍延宮 敬啟":"【"+subject+"｜"+type+"】\n\n各位師兄師姐及善信大德平安：\n\n"+subject+"，相關安排如下：\n日期：【待確認】\n時間：【待確認】\n地點：【待確認】\n工作內容：【待確認】\n注意事項：【待確認】\n\n中和玉勅龍延宮 敬邀";
+ editorSetDraft(subject,content,"已建立公告格式，請人工確認待填欄位。");
 }
 async function editorCopy(text){
- if(!text||!text.trim()){editorToast("目前沒有可複製的內容。");return;}
- try{
-  if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);}
-  else{const t=document.createElement("textarea");t.value=text;t.style.position="fixed";t.style.opacity="0";document.body.appendChild(t);t.select();if(!document.execCommand("copy"))throw Error("copy failed");t.remove();}
-  editorToast("已複製到剪貼簿，可貼至 LINE 或 ChatGPT。");
- }catch(e){editorToast("複製未成功，請手動選取草稿後複製。");}
+ if(!text?.trim()){editorToast("沒有可複製的內容。");return;}
+ try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(text);
+ else{const x=document.createElement("textarea");x.value=text;x.style.position="fixed";x.style.opacity="0";document.body.appendChild(x);x.select();const ok=document.execCommand("copy");x.remove();if(!ok)throw Error("copy");}
+ editorToast("文字已複製；請貼至 LINE 或 ChatGPT 審閱。");
+ }catch(_){editorToast("複製未成功，請手動選取文字後複製。");}
 }
+function editorDownload(){
+ const t=$("editor-copy-body").value;if(!t.trim()){editorToast("沒有可下載的草稿。");return;}
+ const name=($("editor-topic").value.trim()||"宮務公告").replace(/[\\/:*?"<>|]/g,"-").slice(0,35);
+ const blob=new Blob([t],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="龍延宮_"+name+"_"+lyKey(new Date())+".txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ EDITOR_UNSAVED=false;editorDraftNotice();editorToast("已啟動草稿下載，請確認檔案已儲存。");
+}
+["editor-topic","editor-copy-body","editor-type"].forEach(id=>$(id).addEventListener("input",()=>{EDITOR_UNSAVED=true;editorDraftNotice();}));
+window.addEventListener("beforeunload",e=>{if(EDITOR_UNSAVED&&$("editor-copy-body").value.trim()){e.preventDefault();e.returnValue="";}});
 document.addEventListener("click",e=>{
  const a=e.target.closest("[data-editor-ann]");if(a){editorFillAnnouncement(Number(a.dataset.editorAnn));return;}
  const tab=e.target.closest("[data-to-tab]");if(tab){const target=$("tab-"+tab.dataset.toTab);if(target){target.click();$("records-library").scrollIntoView({behavior:"smooth",block:"start"});}return;}
 });
 $("editor-from-selected").addEventListener("click",editorBuildFromDate);
 $("editor-create").addEventListener("click",editorBuildBasic);
+$("editor-download").addEventListener("click",editorDownload);
 $("editor-copy").addEventListener("click",()=>editorCopy($("editor-copy-body").value));
 $("editor-ai-copy").addEventListener("click",()=>{
  const draft=$("editor-copy-body").value.trim(),type=$("editor-type").value;
@@ -827,7 +880,7 @@ function renderAll(){ renderLYCalendar(); renderGH(); renderAnnSoon(); renderSum
 function renderFoot(){
   if(!builtAt) return;
   const t=new Date(builtAt);
-  $("foot").textContent=`資料來源：雲端硬碟「龍延宮工作平台」的六份試算表，${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,"0")}:${String(t.getMinutes()).padStart(2,"0")} 匯入（每 30 分鐘自動更新）。修改請在試算表中進行。`;
+  $("foot").textContent=`資料來源：雲端硬碟「龍延宮工作平台」的七份試算表，${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,"0")}:${String(t.getMinutes()).padStart(2,"0")} 匯入（每 30 分鐘自動更新）。修改請在試算表中進行。`;
 }
 
 for(const k of ["todo","cal","mtg","doc","ev","lunar","ann","flow","rec"]) $("tab-"+k).addEventListener("click",()=>{state.tab=k;state.filter=FILTERS[k][0];renderPanel();});
