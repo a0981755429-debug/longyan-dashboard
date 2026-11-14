@@ -266,6 +266,22 @@ header.editor-header{display:flex;gap:16px;align-items:center;padding:8px 0 20px
 .editor-draft-status{font-size:.78rem;color:var(--muted)}.editor-guidance{padding-left:10px;border-left:3px solid var(--gold)}
 .strip{gap:9px}.stat{padding:12px 15px;box-shadow:none}.stat .v{font-size:1.52rem}
 @media(max-width:760px){.editor-hero{padding:13px 15px}.editor-hero h2{font-size:1rem}.editor-hero p{display:none}.editor-hero-meta{border-left:0;border-top:1px solid var(--line);padding:9px 0 0;justify-content:space-between}.editor-hero-meta>div{min-width:0}.ly-cal-filters{padding:9px 10px;gap:5px}.ly-cal-filters>span{width:100%}.ly-cal-filters button{min-height:38px;padding:6px 9px;font-size:.73rem}.ly-cal-controls button{min-height:38px}.ly-cal-side-head{padding:13px}.ly-cal-side-body{padding:12px}.ly-cal-day .ly-cal-lunar{max-width:25px}}
+
+/* 2.2 補強：手機週摘要、側欄分類、預估行事提示 */
+.ly-cal-week-agenda{display:none}
+.ly-cal-detail-group{display:grid;gap:8px;margin-bottom:10px}
+.ly-cal-detail-group h4{font:700 .83rem var(--body);color:var(--muted);margin:3px 0 0;padding-bottom:7px;border-bottom:1px solid var(--line)}
+.ly-cal-detail-group .ly-cal-detail{padding:0 0 9px}
+.ly-cal-tentative{display:inline-flex;color:var(--warn);font-size:.72rem;font-weight:700}
+.ly-cal-event.is-tentative{border:1px dashed currentColor}
+@media(max-width:600px){
+ .ly-cal-week-agenda:not([hidden]){display:grid;gap:6px;padding:12px;border-top:1px solid var(--line)}
+ .ly-cal-week-agenda .ly-week-head{font-size:.82rem;font-weight:700;padding:0 1px 4px}
+ .ly-cal-week-agenda button{display:grid;grid-template-columns:58px minmax(0,1fr);gap:8px;align-items:center;text-align:left;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px;min-height:45px;font:inherit;cursor:pointer}
+ .ly-cal-week-agenda button[aria-pressed="true"]{background:var(--cinnabar-soft);border-color:var(--cinnabar)}
+ .ly-cal-week-agenda .ly-week-date{font-size:.82rem;font-weight:700}
+ .ly-cal-week-agenda .ly-week-desc{font-size:.8rem;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
+}
 </style>
 <style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -341,6 +357,7 @@ header.editor-header{display:flex;gap:16px;align-items:center;padding:8px 0 20px
         </div><div id="ly-cal-weekdays" class="ly-cal-weekdays"></div>
         <div id="ly-cal-grid" class="ly-cal-grid"></div>
         <div id="ly-cal-list" class="ly-cal-list" hidden></div>
+        <div id="ly-cal-week-agenda" class="ly-cal-week-agenda" hidden aria-label="當週行事摘要"></div>
         <div class="ly-cal-note">日期內容來自原行事曆、祭典推估、公告排程及工作資料。尚未經確認之事項以來源標示為準。</div>
       </div>
       <aside class="ly-cal-side">
@@ -554,12 +571,31 @@ function renderLYCalendar(){
    cells.push('<button type="button" data-ly-date="'+lyKey(d)+'" class="ly-cal-day'+(d.getMonth()!==LY_CAL.m?' outside':'')+(chosen?' selected':'')+(lySame(d,today)?' today':'')+'" aria-pressed="'+chosen+'" aria-label="'+lyKey(d)+' '+items.length+'項行事"><span class="ly-cal-dates"><span class="ly-cal-n">'+d.getDate()+'</span><span class="ly-cal-lunar">'+esc(lyLunar(d))+'</span></span><span class="ly-cal-indicators">'+items.slice(0,4).map(e=>'<i class="ly-cal-dot '+e.kind+'"></i>').join("")+'</span>'+items.slice(0,3).map(e=>'<span class="ly-cal-event '+e.kind+'">'+esc(e.n)+'</span>').join("")+(items.length>3?'<span class="ly-cal-more">另有 '+(items.length-3)+' 項</span>':'')+'</button>');
   }grid.innerHTML=cells.join("");
  }
+
+ const agenda=$("ly-cal-week-agenda");
+ agenda.hidden=LY_CAL.view!=="week";
+ if(LY_CAL.view==="week"){
+  const list=[];
+  for(let i=0;i<7;i++){
+   const d=new Date(start);d.setDate(start.getDate()+i);
+   const items=lyVisibleItems(d),names=items.slice(0,2).map(e=>e.n).join("、");
+   list.push('<button type="button" data-ly-date="'+lyKey(d)+'" aria-pressed="'+lySame(d,LY_CAL.date)+'"><span class="ly-week-date">'+(d.getMonth()+1)+'/'+d.getDate()+' 週'+DOW[d.getDay()]+'</span><span class="ly-week-desc">'+esc(names||"無已登錄行事")+(items.length>2?"，另 "+(items.length-2)+" 項":"")+'</span></button>');
+  }
+  agenda.innerHTML='<div class="ly-week-head">本週行事摘要</div>'+list.join("");
+ }
  const d=LY_CAL.date,items=lyVisibleItems(d);
  $("ly-cal-detail-title").textContent=(d.getMonth()+1)+"月"+d.getDate()+"日・週"+DOW[d.getDay()];
  const choices=lyPublicActivities(d),selector=$("ly-cal-public-activity");
  selector.innerHTML=choices.length?choices.map((v,i)=>'<option value="'+i+'">'+esc(v.name)+(v.status?"（"+esc(v.status)+"）":"")+'</option>').join(""):'<option value="">沒有可供對外公告的活動</option>';
  $("editor-from-selected").disabled=!choices.length;
- $("ly-cal-detail").innerHTML=items.length?items.map(e=>'<div class="ly-cal-detail"><strong><i class="ly-cal-dot '+e.kind+'"></i>'+esc(e.n)+'</strong><small>'+esc(e.info)+'</small></div>').join(""):'<div class="empty">本日沒有已登錄的活動或到期待辦。</div>';
+ const labels=[["祭典與活動",["ritual","event"]],["小編公告排程",["publish"]],["待辦期限",["task"]],["行政與公文",["admin"]]];
+ $("ly-cal-detail").innerHTML=items.length?labels.map(([label,kinds])=>{
+  const rows=items.filter(e=>kinds.includes(e.kind));if(!rows.length)return "";
+  return '<div class="ly-cal-detail-group"><h4>'+label+'（'+rows.length+'）</h4>'+rows.map(e=>{
+   const check=["ritual","event","publish"].includes(e.kind)&&/待|推估|建議|依往例|依章程|未定/.test(e.info||"");
+   return '<div class="ly-cal-detail"><strong><i class="ly-cal-dot '+e.kind+'"></i>'+esc(e.n)+'</strong><small>'+esc(e.info||"依來源資料")+'</small>'+(check?'<span class="ly-cal-tentative">來源為推估或尚待確認，發布前請核對</span>':"")+'</div>';
+  }).join("")+'</div>';
+ }).join(""):'<div class="empty">本日沒有符合目前篩選的行事。</div>';
 }
 function lySelect(s){const d=toDate(s);if(!d||isNaN(+d))return;LY_CAL.date=d;LY_CAL.y=d.getFullYear();LY_CAL.m=d.getMonth();renderLYCalendar();}
 function lyMove(n){if(LY_CAL.view==="week"){const d=new Date(LY_CAL.date);d.setDate(d.getDate()+n*7);lySelect(lyKey(d));}else lySelect(lyKey(new Date(LY_CAL.y,LY_CAL.m+n,1)));}
@@ -567,7 +603,7 @@ $("ly-cal-prev").addEventListener("click",()=>lyMove(-1));
 $("ly-cal-next").addEventListener("click",()=>lyMove(1));
 $("ly-cal-today").addEventListener("click",()=>lySelect(lyKey(today)));
 document.querySelectorAll("[data-cal-view]").forEach(b=>b.addEventListener("click",()=>{LY_CAL.view=b.dataset.calView;renderLYCalendar();}));
-["ly-cal-grid","ly-cal-list"].forEach(id=>$(id).addEventListener("click",e=>{const b=e.target.closest("[data-ly-date]");if(b)lySelect(b.dataset.lyDate);}));
+["ly-cal-grid","ly-cal-list","ly-cal-week-agenda"].forEach(id=>$(id).addEventListener("click",e=>{const b=e.target.closest("[data-ly-date]");if(b)lySelect(b.dataset.lyDate);}));
 document.querySelectorAll("[data-cal-filter]").forEach(b=>b.addEventListener("click",()=>{
  const k=b.dataset.calFilter;
  if(k==="all")LY_CAL.kinds=new Set(["ritual","event","admin","task","publish"]);
