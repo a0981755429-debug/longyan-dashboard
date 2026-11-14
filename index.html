@@ -360,6 +360,7 @@ header.editor-header{display:flex;gap:16px;align-items:center;padding:8px 0 20px
               <button class="editor-button" type="button" id="editor-create">依主題建立草稿</button>
               <button class="editor-button primary" type="button" id="editor-copy">複製文案</button>
               <button class="editor-button" type="button" id="editor-ai-copy">複製給 ChatGPT 的修改指令</button>
+              <a class="editor-button" target="_blank" rel="noopener noreferrer" href="https://chatgpt.com/">開啟 ChatGPT ↗</a>
             </div>
             <p class="editor-guidance">公告草稿、祭典推估與工作安排不等於正式核定；發布前請人工查核日期、時間、收費及人員資訊。</p>
             <span id="editor-feedback" role="status" aria-live="polite"></span>
@@ -499,7 +500,7 @@ function lyItems(d){
 function lyLunar(d){
  const r=(state.lunar||[]).find(x=>lySame(toDate(x["國曆日期"]),d)&&x["農曆"])||(state.cal||[]).find(x=>lySame(toDate(x["國曆日期"]),d)&&x["農曆"]);
  if(r)return (r["農曆"]||"").replace(/^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]年/,"");
- try{return new Intl.DateTimeFormat("zh-TW-u-ca-chinese",{month:"long",day:"numeric"}).format(d);}catch(_){return "";}
+ try{const parts=new Intl.DateTimeFormat("zh-TW-u-ca-chinese",{month:"long",day:"numeric"}).formatToParts(d);const mon=parts.find(p=>p.type==="month")?.value||"";const n=Number(parts.find(p=>p.type==="day")?.value||0);const z=["","一","二","三","四","五","六","七","八","九","十"];const day=n===10?"初十":n===20?"二十":n===30?"三十":n<10?"初"+z[n]:n<20?"十"+z[n-10]:"廿"+z[n-20];return mon+day;}catch(_){return "";}
 }
 function renderLYCalendar(){
  const grid=$("ly-cal-grid"),lst=$("ly-cal-list");if(!grid)return;
