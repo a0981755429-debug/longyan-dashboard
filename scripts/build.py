@@ -3,7 +3,7 @@
 
 每次發布會做四件事：
 1. 讀取試算表（設定為「知道連結的人可檢視」，不需要金鑰）
-2. 遮蔽敏感資訊：手機、市話、身分證字號、Email 一律換成「＊」
+2. 遮蔽敏感資訊：手機、市話、身分證字號、Email、地址、生日換成「＊」；欄名含電話／地址／身分證等的整欄移除
 3. 檢查資料：必要欄位、筆數、日期格式、編號格式
 4. 某份試算表讀取或檢查失敗時，沿用網站上一版的資料，並在頁面上標示
 
@@ -50,7 +50,13 @@ SENSITIVE = [
     ("市話", re.compile(r"(?<!\d)\(?0[2-8]\)?[-\s]?\d{3,4}[-\s]?\d{4}(?!\d)")),
     ("身分證字號", re.compile(r"(?<![A-Za-z0-9])[A-Z][12489]\d{8}(?!\d)")),
     ("Email", re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")),
+    # 台灣地址：要有「路／街／道」加門牌「號」才算，避免把「中和區」這類地名誤遮
+    ("地址", re.compile(r"(?:[\u4e00-\u9fff]{2}[縣市])?[\u4e00-\u9fff]{1,4}[區鄉鎮市]?[\u4e00-\u9fff0-9]{1,10}[路街道]"
+                       r"(?:[一二三四五六七八九十\d]+段)?(?:\d+巷)?(?:\d+弄)?\d+(?:之\d+)?號(?:\d+樓)?")),
+    ("出生日期", re.compile(r"(?:生日|出生)[：:\s]*\d{2,4}[./-]\d{1,2}[./-]\d{1,2}")),
 ]
+# 欄位名稱符合這些字樣的整欄移除（就算內容格式辨識不出來也不會外流）
+SENSITIVE_COLS = re.compile(r"電話|手機|市話|地址|住址|身分證|身份證|生日|出生|Email|E-mail|信箱|LINE\s*ID", re.I)
 
 # ---- 編號規則（詳見 longyan-platform/docs/規範/編號規則.md）----
 GANZHI = "[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]"
@@ -78,6 +84,19 @@ def fetch(url, tries=3):
             time.sleep(5)
 
 
+def drop_sensitive_cols(text):
+    rows = list(csv.reader(io.StringIO(text)))
+    if not rows:
+        return text, []
+    keep = [i for i, h in enumerate(rows[0]) if not SENSITIVE_COLS.search(h or "")]
+    dropped = [h for i, h in enumerate(rows[0]) if i not in keep]
+    if not dropped:
+        return text, []
+    out = io.StringIO()
+    csv.writer(out, lineterminator="\n").writerows([[r[i] if i < len(r) else "" for i in keep] for r in rows])
+    return out.getvalue(), dropped
+
+
 def mask(text):
     counts = {}
     for name, rx in SENSITIVE:
@@ -100,7 +119,12 @@ def check(key, text):
             v = r.get(c, "")
             if not v or v in ("—", "-", "待定", "未定"):
                 continue
-            if DATE_OK.match(v) and not re.match(r"^0\d{3}[-/]", v):
+            m = DATE_OK.match(v)
+            if m and not re.match(r"^0\d{3}[-/]", v):
+                try:
+                    dt.date(int(m[1]), int(m[2]), int(m[3]))
+                except ValueError:
+                    bad_dates.append(f"第{i}列 {c}「{v[:12]}」日期不存在")
                 continue
             if DATE_ROC.match(v) or re.match(r"^0\d{3}[-/]", v):
                 roc_dates += 1
@@ -151,6 +175,7 @@ def main():
             if body.lstrip().startswith(b"<"):
                 raise RuntimeError("拿到的是網頁不是 CSV，試算表可能已改成不公開或被刪除")
             text = body.decode("utf-8-sig")
+            text, dropped = drop_sensitive_cols(text)
             text, masked = mask(text)
             info.update(check(key, text))
             if info["missingCols"]:
@@ -158,13 +183,16 @@ def main():
             if info["rows"] == 0:
                 raise RuntimeError("試算表沒有任何資料列")
             (OUT / "data" / f"{key}.csv").write_text(text, encoding="utf-8")
-            info.update(status="ok", masked=masked, sourceAt=now)
-            print(f"已匯入 {name}：{info['rows']} 筆" + (f"，遮蔽 {masked}" if masked else ""))
+            info.update(status="ok", masked=masked, droppedCols=dropped, sourceAt=now)
+            print(f"已匯入 {name}：{info['rows']} 筆" + (f"，遮蔽 {masked}" if masked else "") + (f"，移除欄位 {dropped}" if dropped else ""))
         except Exception as e:
             info["error"] = str(e)[:200]
             try:
-                old = fetch(SITE_URL + f"data/{key}.csv", tries=2)
-                (OUT / "data" / f"{key}.csv").write_bytes(old)
+                old = fetch(SITE_URL + f"data/{key}.csv", tries=2).decode("utf-8-sig")
+                # 上一版發布前已遮蔽過；這裡用最新規則再處理一次，規則變嚴時舊資料也跟著變嚴
+                old, _ = drop_sensitive_cols(old)
+                old, _ = mask(old)
+                (OUT / "data" / f"{key}.csv").write_text(old, encoding="utf-8")
                 info.update(status="fallback", sourceAt=prev.get(key, {}).get("sourceAt"))
                 print(f"::warning::{name} 匯入失敗，沿用上一版：{e}")
             except Exception:

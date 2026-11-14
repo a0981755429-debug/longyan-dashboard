@@ -524,7 +524,7 @@ function renderHealth(){
     const st=s.status==="ok"?`<span class="pill p-ok">正常</span>`:s.status==="fallback"?`<span class="pill p-warn">沿用上一版</span>`:`<span class="pill p-bad">失敗</span>`;
     const fix=[...(s.badDates||[]).map(x=>"日期格式："+x),...(s.badIds||[]).map(x=>"編號："+x)];
     const more=(s.badDateCount||0)+(s.badIdCount||0)-fix.length;
-    return `<tr><td>${esc(s.name)}</td><td>${st}${s.error?`<div class="meta">${esc(s.error)}</div>`:""}${s.masked&&Object.keys(s.masked).length?`<div class="meta">遮蔽：${esc(Object.entries(s.masked).map(([k,v])=>k+" "+v).join("、"))}</div>`:""}</td><td class="num">${s.rows??"—"}</td><td class="num">${s.sourceAt?hm(s.sourceAt):"—"}</td><td class="meta">${fix.length?fix.map(esc).join("<br>")+(more>0?`<br>…另 ${more} 筆`:""):"—"}</td></tr>`;}).join("")+`</tbody></table>`;
+    return `<tr><td>${esc(s.name)}</td><td>${st}${s.error?`<div class="meta">${esc(s.error)}</div>`:""}${s.masked&&Object.keys(s.masked).length?`<div class="meta">遮蔽：${esc(Object.entries(s.masked).map(([k,v])=>k+" "+v).join("、"))}</div>`:""}${s.droppedCols&&s.droppedCols.length?`<div class="meta">不公開欄位：${esc(s.droppedCols.join("、"))}</div>`:""}</td><td class="num">${s.rows??"—"}</td><td class="num">${s.sourceAt?hm(s.sourceAt):"—"}</td><td class="meta">${fix.length?fix.map(esc).join("<br>")+(more>0?`<br>…另 ${more} 筆`:""):"—"}</td></tr>`;}).join("")+`</tbody></table>`;
 }
 async function loadData(){
   try{ const m=await fetch("data/meta.json",{cache:"no-store"}); if(m.ok){ meta=await m.json(); builtAt=meta.at; } }catch(_){}
