@@ -11,25 +11,28 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <style>
-/* Layout: header → status strip → two-column (近期行事 | 需處理待辦) → tabbed full lists → phase-2 placeholders */
+/* 版面 2.0：header（資料管理選單）→ 摘要 → 大型月曆 70% ｜ 工作側欄 30% → 下方功能分頁 → 第二階段 */
 :root{
   --bg:#FAF8F7; --surface:#FFFFFF; --line:#E7E0DD; --fg:#211B1A; --muted:#6E6461;
   --cinnabar:#A6261D; --cinnabar-soft:#F6E3E1; --gold:#8A6414; --gold-soft:#F5ECD6;
   --ok:#2F6B4F; --ok-soft:#E2F0E8; --warn:#9A5B00; --warn-soft:#FBEBD2; --bad:#B42318; --bad-soft:#FDE4E1;
+  --c-big:#A6261D; --c-big-soft:#F6E3E1; --c-rite:#8A6414; --c-rite-soft:#F5ECD6; --c-adm:#34558A; --c-adm-soft:#E3EAF5; --c-task:#2E6B5E; --c-task-soft:#DFEFEA; --c-pub:#6B4E91; --c-pub-soft:#EEE7F7;
   --display:"Noto Serif TC","Songti TC","PMingLiU",serif;
   --body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#151211; --surface:#1E1A19; --line:#342D2B; --fg:#EFE8E5; --muted:#A79C98;
   --cinnabar:#E8776C; --cinnabar-soft:#3A1F1C; --gold:#D8B05A; --gold-soft:#352B17;
-  --ok:#7CC6A1; --ok-soft:#1C3128; --warn:#E9B35C; --warn-soft:#3A2C14; --bad:#F2877C; --bad-soft:#3E1D1A; color-scheme:dark}}
+  --ok:#7CC6A1; --ok-soft:#1C3128; --warn:#E9B35C; --warn-soft:#3A2C14; --bad:#F2877C; --bad-soft:#3E1D1A;
+  --c-big:#E8776C; --c-big-soft:#3A1F1C; --c-rite:#D8B05A; --c-rite-soft:#352B17; --c-adm:#8FB0E0; --c-adm-soft:#1D2738; --c-task:#79C3B0; --c-task-soft:#17302A; --c-pub:#CDB2F0; --c-pub-soft:#2D2338; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#151211; --surface:#1E1A19; --line:#342D2B; --fg:#EFE8E5; --muted:#A79C98;
   --cinnabar:#E8776C; --cinnabar-soft:#3A1F1C; --gold:#D8B05A; --gold-soft:#352B17;
-  --ok:#7CC6A1; --ok-soft:#1C3128; --warn:#E9B35C; --warn-soft:#3A2C14; --bad:#F2877C; --bad-soft:#3E1D1A; color-scheme:dark}
+  --ok:#7CC6A1; --ok-soft:#1C3128; --warn:#E9B35C; --warn-soft:#3A2C14; --bad:#F2877C; --bad-soft:#3E1D1A;
+  --c-big:#E8776C; --c-big-soft:#3A1F1C; --c-rite:#D8B05A; --c-rite-soft:#352B17; --c-adm:#8FB0E0; --c-adm-soft:#1D2738; --c-task:#79C3B0; --c-task-soft:#17302A; --c-pub:#CDB2F0; --c-pub-soft:#2D2338; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.6}
-.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:20px 48px;display:grid;gap:22px}
+.wrap{max-width:1360px;margin:0 auto;padding-inline:16px;padding-block:16px 48px;display:grid;gap:16px}
 header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;border-bottom:2px solid var(--cinnabar);padding-bottom:12px}
 h1{font-family:var(--display);font-size:1.9rem;margin:0;letter-spacing:.06em;text-wrap:balance}
 .sub{color:var(--muted);font-size:.9rem}
@@ -38,10 +41,10 @@ a.btn,button.btn{font:inherit;font-size:.85rem;color:var(--cinnabar);background:
 a.btn:hover,button.btn:hover{border-color:var(--cinnabar)}
 :focus-visible{outline:2px solid var(--cinnabar);outline-offset:2px}
 .notice{border:1px solid var(--warn);background:var(--warn-soft);color:var(--fg);border-radius:8px;padding:10px 14px;font-size:.9rem}
-.strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:2px}
+.strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 12px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
 .stat .k{font-size:.8rem;color:var(--muted);letter-spacing:.05em}
-.stat .v{font-size:1.7rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat .v{font-size:1.35rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.3}
 .stat.alert .v{color:var(--bad)}
 .stat.gold .v{color:var(--gold)}
 .cols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px}
@@ -62,7 +65,8 @@ h2 small{font-family:var(--body);font-weight:400;font-size:.8rem;color:var(--mut
 .p-gold{background:var(--gold-soft);color:var(--gold)}
 .p-red{background:var(--cinnabar-soft);color:var(--cinnabar)}
 .p-mute{border-color:var(--line);color:var(--muted)}
-.tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:thin}
+.tabs button{white-space:nowrap;flex:none}
 .tabs button{font:inherit;background:none;border:0;border-bottom:2px solid transparent;padding:6px 10px;color:var(--muted);cursor:pointer}
 .tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--cinnabar);font-weight:700}
 .filters{display:flex;flex-wrap:wrap;gap:6px}
@@ -76,7 +80,7 @@ td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 tr.over td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
 .empty{padding:18px 14px;color:var(--muted);font-size:.9rem}
 .future{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-.future .card{border:1px dashed var(--line);border-radius:8px;padding:14px;display:grid;gap:4px}
+.future .card{border:1px dashed var(--line);border-radius:8px;padding:14px;display:grid;gap:4px;background:none}
 .future .card b{font-family:var(--display)}
 .foot{font-size:.8rem;color:var(--muted)}
 pre.draft{white-space:pre-wrap;font:inherit;font-size:.85rem;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:6px 0}
@@ -91,329 +95,281 @@ details summary{cursor:pointer}
 .case .kv span b{font-family:var(--body);font-size:1rem;font-variant-numeric:tabular-nums}
 .mini{display:inline-block;width:64px;height:6px;border-radius:999px;background:var(--line);overflow:hidden;vertical-align:middle;margin-right:6px}
 .mini i{display:block;height:100%;background:var(--gold)}
+
+/* ---- 版面 2.0 ---- */
+header{padding-bottom:10px}
+.menu{position:relative}
+.menu summary{list-style:none;display:inline-block}
+.menu summary::-webkit-details-marker{display:none}
+.menu summary::after{content:" ▾";font-size:.75em}
+.menu-pop{position:absolute;right:0;top:calc(100% + 6px);z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgb(0 0 0 / .12);padding:6px;min-width:250px;display:grid}
+.menu-pop a{display:flex;justify-content:space-between;gap:12px;padding:6px 10px;border-radius:6px;color:var(--fg);text-decoration:none;font-size:.9rem}
+.menu-pop a:hover{background:var(--cinnabar-soft)}
+.menu-pop a small{color:var(--muted);font-size:.75rem}
+.menu-h{font-size:.72rem;color:var(--muted);padding:6px 10px 2px;letter-spacing:.05em}
+.main{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,3fr);gap:18px;align-items:start}
+.calbox{display:grid;gap:8px}
+.caltool{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.calnav{display:flex;align-items:center;gap:6px}
+.caltitle{display:grid;line-height:1.2;min-width:9.5em;text-align:center}
+.caltitle b{font-family:var(--display);font-size:1.45rem;letter-spacing:.04em}
+.btn.icon{font-size:1.1rem;line-height:1;padding:4px 10px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{font:inherit;font-size:.85rem;border:0;background:var(--surface);color:var(--fg);padding:4px 14px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--cinnabar);color:#fff}
+.legend{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;align-items:center}
+.cats,.confs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.cats button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:1px 10px 1px 8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.cats button i{width:10px;height:10px;border-radius:3px;background:var(--cc)}
+.cats button[aria-pressed="false"]{opacity:.45;text-decoration:line-through}
+.confs .chip{display:inline-block;font-size:.72rem}
+.cat-big{--cc:var(--c-big);--cs:var(--c-big-soft)} .cat-rite{--cc:var(--c-rite);--cs:var(--c-rite-soft)}
+.cat-adm{--cc:var(--c-adm);--cs:var(--c-adm-soft)} .cat-task{--cc:var(--c-task);--cs:var(--c-task-soft)}
+.chip{display:block;font-size:.72rem;line-height:1.4;padding:0 5px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid transparent;border-left:3px solid var(--cc);background:var(--cs);color:var(--fg);text-align:left}
+.chip.cf-temp{border-color:var(--cc);border-style:dashed;border-left-style:solid}
+.chip.cf-est{background:transparent;border-color:var(--cc);border-style:dotted;border-left-style:solid}
+.chip.cf-tbd{background:transparent;border-color:var(--warn);border-style:dashed;border-left:3px solid var(--cc)}
+.chip.cf-tbd::before{content:"筊 ";color:var(--warn);font-weight:700}
+.chip.over{background:var(--bad-soft);color:var(--bad);border-left-color:var(--bad)}
+.chip.over::before{content:"逾期 ";font-weight:700}
+.chip.done{opacity:.55;text-decoration:line-through}
+.chip b{font-weight:700}
+.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:var(--line);gap:1px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.mgrid .dh{background:var(--bg);text-align:center;font-size:.78rem;color:var(--muted);padding:4px 0}
+.mgrid .dh.we{color:var(--cinnabar)}
+.cell{font:inherit;color:inherit;border:0;background:var(--surface);min-height:132px;padding:4px 5px 5px;display:flex;flex-direction:column;gap:2px;text-align:left;cursor:pointer;min-width:0;position:relative}
+.cell:hover{background:var(--bg)}
+.cell.out{background:var(--bg)}
+.cell.out>*{opacity:.5}
+.cell.sel{box-shadow:inset 0 0 0 2px var(--gold)}
+.cell .top{display:flex;justify-content:space-between;align-items:baseline;gap:4px;margin-bottom:1px}
+.dn{font-weight:700;font-variant-numeric:tabular-nums;font-size:.95rem;min-width:1.7em;height:1.7em;display:inline-grid;place-items:center;border-radius:999px}
+.we .dn{color:var(--cinnabar)}
+.today .dn{background:var(--cinnabar);color:#fff}
+.ln{font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ln.l1,.ln.l15{color:var(--gold);font-weight:700}
+.more{font-size:.7rem;color:var(--muted);padding-left:4px}
+.dots{display:none}
+.wgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.wday{font:inherit;color:inherit;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:4px;min-height:320px;cursor:pointer;min-width:0}
+.wday.sel{box-shadow:inset 0 0 0 2px var(--gold)}
+.wday .top{display:flex;justify-content:space-between;align-items:baseline;gap:4px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.wday .chip{white-space:normal;font-size:.78rem;padding:2px 6px}
+.wday .chip .t{color:var(--muted);font-variant-numeric:tabular-nums;margin-right:4px}
+.agenda{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.aday{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;padding:8px 12px;border-top:1px solid var(--line);cursor:pointer}
+.aday:first-child{border-top:0}
+.aday.sel{background:var(--gold-soft)}
+.aday .chip{white-space:normal;font-size:.85rem;padding:2px 8px;margin-bottom:3px}
+.side{display:grid;gap:14px;min-width:0}
+.side .card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 12px 10px;display:grid;gap:8px;min-width:0}
+.side h2{font-size:1.05rem;flex-wrap:wrap}
+.list.flat{border:0;border-radius:0;background:none}
+.side .row{grid-template-columns:52px minmax(0,1fr) auto;padding:8px 0;gap:8px}
+.side .row .date{font-size:.9rem}
+.dayhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.dayhead b{font-family:var(--display);font-size:1.25rem}
+.ditem{border-left:4px solid var(--cc);padding:4px 0 4px 10px;display:grid;gap:3px}
+.ditem.over{border-left-color:var(--bad)}
+.ditem .ttl .t{font-variant-numeric:tabular-nums;color:var(--muted);margin-right:6px;font-weight:400}
+.ditem .pills{display:flex;flex-wrap:wrap;gap:4px}
+.evprog{background:var(--bg);border-radius:6px;padding:8px 10px;display:grid;gap:6px;font-size:.85rem}
+.evprog ol{margin:0;padding-left:1.2em;display:grid;gap:2px}
+.warnline{color:var(--warn);font-size:.82rem}
+.phase2 summary{cursor:pointer;padding:6px 0}
+.phase2 .future{margin-top:8px}
+#work{gap:10px}
+a.btn.primary,button.btn.primary{background:var(--cinnabar);border-color:var(--cinnabar);color:#fff}
+a.btn.primary:hover,button.btn.primary:hover{filter:brightness(.93)}
+.cat-pub{--cc:var(--c-pub);--cs:var(--c-pub-soft)}
+#editorial-desk{scroll-margin-top:12px}
+.editor-panels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.editor-panels .card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:10px;min-width:0}
+.editor-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.editor-head h3{font-family:var(--display);font-size:1.05rem;margin:0}
+#annsoon{max-height:520px;overflow:auto}
+#editorial-desk .row{grid-template-columns:64px minmax(0,1fr);gap:10px;padding:10px 0}
+.editor-compose{display:grid;gap:8px}
+.editor-compose label{font-size:.82rem;color:var(--muted);font-weight:700}
+.editor-compose input,.editor-compose select,.editor-compose textarea{width:100%;background:var(--bg);color:var(--fg);font:inherit;border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+.editor-compose textarea{resize:vertical;min-height:170px}
+.editor-form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.editor-actions{display:flex;gap:6px;flex-wrap:wrap}
+#editor-feedback{font-size:.82rem;min-height:1.4em;color:var(--ok)}
+.office-records{display:grid}
+.office-record{padding:8px 0;border-top:1px solid var(--line);display:grid;gap:2px}
+.office-record:first-child{border-top:0}
+.office-record-title{font-size:.88rem;font-weight:500}
+.office-record-meta{font-size:.76rem;color:var(--muted)}
+@media (max-width:900px){.editor-panels,.editor-form-row{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1060px){.main{grid-template-columns:minmax(0,1fr)}.side{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}}
+@media (max-width:760px){.wgrid{grid-template-columns:minmax(0,1fr)}.wday{min-height:0;flex-direction:row;flex-wrap:wrap}.wday .top{flex-direction:column;border-bottom:0;border-right:1px solid var(--line);padding:0 8px 0 0;width:64px;justify-content:flex-start}.wday .items{flex:1;display:grid;gap:4px;min-width:0}}
+@media (min-width:761px){.wday .items{display:grid;gap:4px}}
+@media (max-width:640px){
+  h1{font-size:1.5rem}
+  .stat{padding:6px 10px}.stat .v{font-size:1.15rem}
+  .caltitle b{font-size:1.2rem}.caltitle{min-width:7.5em}
+  .cell{min-height:70px;padding:2px 2px 3px;gap:1px}
+  .dn{font-size:.82rem;min-width:1.55em;height:1.55em}
+  .cell .top{flex-direction:column;align-items:center;gap:0}
+  .ln{font-size:.6rem;text-align:center}
+  .cell .chip{font-size:.6rem;padding:0 2px;border-left-width:2px;line-height:1.35;text-overflow:clip}
+  .cell .chip.cf-tbd::before,.cell .chip.over::before{content:""}
+  .more{font-size:.6rem;padding:0;text-align:center}
+  .aday{grid-template-columns:64px minmax(0,1fr);padding:8px}
+  .menu-pop{position:fixed;left:16px;right:16px;top:auto;min-width:0}
+}
 @media (max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}.strip{grid-template-columns:repeat(2,minmax(0,1fr))}.row{grid-template-columns:72px minmax(0,1fr)}.row .right{grid-column:2}}
 @media (prefers-reduced-motion:no-preference){.list,.tablebox{transition:opacity .2s}}
-
-/* 宮務大月曆 2.0 */
-.ly-cal-layout{display:grid;grid-template-columns:minmax(0,7fr) minmax(270px,3fr);gap:14px;align-items:start}
-.ly-cal-main,.ly-cal-side{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.ly-cal-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:14px;border-bottom:1px solid var(--line)}
-.ly-cal-toolbar strong{font:700 1.25rem var(--display)}
-.ly-cal-controls{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-.ly-cal-controls button{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:7px;font:inherit;padding:5px 10px;cursor:pointer}
-.ly-cal-controls button[aria-pressed="true"]{background:var(--cinnabar-soft);color:var(--cinnabar);border-color:var(--cinnabar)}
-.ly-cal-legend{display:flex;gap:13px;flex-wrap:wrap;padding:9px 14px;font-size:.8rem;color:var(--muted)}
-.ly-cal-dot{display:inline-block;width:8px;height:8px;border-radius:100%;margin-right:4px;vertical-align:middle;background:var(--gold)}
-.ly-cal-dot.ritual{background:#A6261D}.ly-cal-dot.event{background:#A47721}.ly-cal-dot.admin{background:#46739B}.ly-cal-dot.task{background:#B65A22}
-.ly-cal-weekdays,.ly-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
-.ly-cal-weekdays>div{text-align:center;background:var(--bg);font-size:.8rem;color:var(--muted);padding:8px}
-.ly-cal-day{min-width:0;min-height:112px;display:flex;flex-direction:column;align-items:stretch;gap:4px;border:0;border-top:1px solid var(--line);border-right:1px solid var(--line);padding:6px;background:var(--surface);color:var(--fg);font:inherit;text-align:left;cursor:pointer}
-.ly-cal-day:nth-child(7n){border-right:0}
-.ly-cal-day:hover{background:var(--bg)}
-.ly-cal-day.outside{opacity:.4}.ly-cal-day.selected{outline:2px solid var(--cinnabar);outline-offset:-2px;background:var(--cinnabar-soft)}
-.ly-cal-day.today .ly-cal-n{background:var(--cinnabar);color:white;border-radius:99px;padding:0 6px}
-.ly-cal-dates{display:flex;justify-content:space-between;align-items:center;gap:3px}
-.ly-cal-n{font-size:.9rem;font-weight:700}.ly-cal-lunar{font-size:.68rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ly-cal-event{border-radius:4px;padding:3px 4px;font-size:.72rem;line-height:1.3;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-.ly-cal-event.ritual{background:var(--cinnabar-soft);color:var(--cinnabar)}.ly-cal-event.event{background:var(--gold-soft);color:var(--gold)}
-.ly-cal-event.admin{background:#e5edf7;color:#335c81}.ly-cal-event.task{background:var(--warn-soft);color:var(--warn)}
-.ly-cal-more{font-size:.7rem;color:var(--muted)}.ly-cal-side-head{padding:14px;border-bottom:1px solid var(--line)}
-.ly-cal-side-body{padding:14px;display:grid;gap:12px;max-height:650px;overflow:auto}
-.ly-cal-detail{display:grid;gap:5px;padding-bottom:10px;border-bottom:1px solid var(--line)}
-.ly-cal-detail strong{font-size:.9rem}.ly-cal-detail small{font-size:.78rem;color:var(--muted)}
-.ly-cal-list{display:grid;gap:8px;padding:12px}
-.ly-cal-list button{display:flex;gap:10px;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--surface);color:var(--fg);font:inherit;text-align:left;cursor:pointer}
-.ly-cal-note{padding:10px 14px;font-size:.78rem;color:var(--muted);border-top:1px solid var(--line)}
-.ly-cal-indicators{display:none}
-@media(max-width:950px){.ly-cal-layout{grid-template-columns:1fr}.ly-cal-side-body{max-height:none}}
-@media(max-width:600px){.ly-cal-day{min-height:73px;padding:4px 2px}.ly-cal-day .ly-cal-event,.ly-cal-more{display:none}.ly-cal-n{font-size:.82rem}.ly-cal-lunar{font-size:.6rem}.ly-cal-indicators{display:flex;gap:3px;flex-wrap:wrap}.ly-cal-indicators .ly-cal-dot{width:6px;height:6px;margin:0}.ly-cal-toolbar{padding:10px}.ly-cal-toolbar strong{font-size:1.05rem}}
-
-
-/* 文書組・小編工作台 2.1：編輯型宮務儀表板 */
-:root{
-  --editor-ink:#352B28;--editor-paper:#F7F4EF;--editor-cream:#FCFAF6;
-  --editor-muted:#80716A;--editor-shadow:0 8px 32px rgba(62,37,25,.045);
-}
-html{scroll-behavior:smooth}
-body{background:var(--editor-paper)}
-.wrap{max-width:1480px;padding:22px clamp(14px,2.7vw,42px) 52px;gap:26px}
-header.editor-header{display:flex;gap:16px;align-items:center;padding:8px 0 20px;border:0;border-bottom:1px solid var(--line)}
-.editor-brand{height:54px;width:54px;border-radius:14px;background:var(--cinnabar);color:white;display:grid;place-items:center;font-family:var(--display);font-size:1.65rem;box-shadow:0 5px 16px rgba(166,38,29,.18);flex-shrink:0}
-.editor-brandtext{flex:1;min-width:200px}
-.editor-kicker{font-size:.72rem;letter-spacing:.17em;color:var(--gold);font-weight:700}
-.editor-brandtext h1{font-size:1.37rem;letter-spacing:.03em;line-height:1.4}
-.editor-brandtext h1 span{font:500 .92rem var(--body);color:var(--muted);letter-spacing:0}
-.editor-brandtext .sub{font-size:.78rem}
-.editor-header-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-.editor-button{font:600 .84rem var(--body);text-decoration:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:10px 13px;border-radius:9px;background:var(--surface);color:var(--fg);border:1px solid var(--line);white-space:nowrap}
-.editor-button:hover{border-color:var(--cinnabar);color:var(--cinnabar)}
-.editor-button.primary{background:var(--cinnabar);border-color:var(--cinnabar);color:white}
-.editor-button.primary:hover{filter:brightness(.92);color:white}
-.editor-sources{position:relative}
-.editor-sources summary{list-style:none;cursor:pointer}
-.editor-sources summary::-webkit-details-marker{display:none}
-.editor-source-pop{position:absolute;top:calc(100% + 8px);right:0;z-index:10;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:0 16px 38px rgba(0,0,0,.13);min-width:220px;max-height:65vh;overflow:auto;display:grid;gap:2px}
-.editor-source-pop a{color:var(--fg);text-decoration:none;display:block;font-size:.86rem;padding:9px 12px;border-radius:7px}
-.editor-source-pop a:hover{background:var(--bg);color:var(--cinnabar)}
-.editor-nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:0 0 4px}
-.editor-nav a{text-decoration:none;color:var(--muted);font-size:.87rem;font-weight:600;padding:9px 14px;border-radius:9px}
-.editor-nav a:hover,.editor-nav a:focus-visible{background:var(--cinnabar-soft);color:var(--cinnabar)}
-.editor-nav a.is-active{background:var(--surface);border:1px solid var(--line);color:var(--fg)}
-.editor-hero{background:linear-gradient(115deg,#402A28 0%,#62413A 55%,#86654A 100%);color:#FFF9F3;border-radius:17px;min-height:170px;display:grid;grid-template-columns:1fr auto;gap:20px;padding:clamp(22px,3vw,36px);position:relative;overflow:hidden;box-shadow:var(--editor-shadow)}
-.editor-hero:after{content:"延";position:absolute;font:700 190px var(--display);right:20%;top:-105px;color:rgba(255,255,255,.05);pointer-events:none}
-.editor-hero h2{font-size:clamp(1.4rem,2.6vw,2.3rem);color:white;margin:8px 0 6px;letter-spacing:.04em;line-height:1.38}
-.editor-hero h2,.editor-hero p,.editor-hero span{position:relative;z-index:1}
-.editor-hero p{margin:0;color:#E7D8CB;font-size:.93rem}
-.editor-hero .hero-small{font-size:.72rem;color:#E8C8A6;letter-spacing:.18em;font-weight:700}
-.editor-hero-meta{min-width:210px;align-self:center;border:1px solid rgba(255,255,255,.23);background:rgba(255,255,255,.07);border-radius:12px;padding:15px 18px;display:grid;gap:4px;position:relative;z-index:1}
-.editor-hero-meta b{font-size:1.1rem;font-weight:700}
-.editor-hero-meta small{font-size:.74rem;color:#F0DDD0}
-.strip{gap:12px}
-.stat{padding:16px 18px;border-radius:12px;box-shadow:var(--editor-shadow);border:1px solid var(--line)}
-.stat .k{font-size:.79rem}.stat .v{font-size:1.8rem}
-.editor-section-title{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:2px}
-.editor-section-title .editor-overline{display:block;font-size:.72rem;font-weight:700;color:var(--gold);letter-spacing:.16em;margin-bottom:2px}
-.editor-section-title h2{font-size:1.42rem}
-.editor-section-title p{font-size:.82rem;color:var(--muted);margin:0}
-#ly-calendar-section{gap:12px;scroll-margin-top:16px}
-#ly-calendar-section>.editor-section-title{margin-bottom:2px}
-.ly-cal-layout{gap:18px;grid-template-columns:minmax(0,7fr) minmax(290px,3fr)}
-.ly-cal-main,.ly-cal-side{border-radius:14px;box-shadow:var(--editor-shadow)}
-.ly-cal-toolbar{padding:18px 20px}.ly-cal-toolbar strong{font-size:1.36rem}
-.ly-cal-controls button{border-radius:8px;padding:7px 12px}
-.ly-cal-weekdays>div{padding:11px 0}
-.ly-cal-day{min-height:119px;padding:8px;gap:6px}
-.ly-cal-day.selected{background:var(--cinnabar-soft)}
-.ly-cal-event{font-size:.75rem;padding:4px 6px}
-.ly-cal-side-head{padding:18px 20px}
-.ly-cal-side-head strong{font-size:1.08rem}
-.ly-cal-side-body{padding:17px 19px}
-.ly-cal-detail{gap:7px}
-.editor-day-action{display:block;margin-top:10px;padding:7px 10px;background:var(--cinnabar-soft);border:1px solid transparent;color:var(--cinnabar);border-radius:8px;font:600 .8rem var(--body);cursor:pointer}
-.editor-day-action:hover{border-color:var(--cinnabar)}
-.editor-panels{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,1fr);gap:18px;align-items:start}
-.editor-panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--editor-shadow);overflow:hidden}
-.editor-panel-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center}
-.editor-panel-head h3{font-size:1.04rem;margin:0;font-family:var(--display)}
-.editor-panel-head small{color:var(--muted);font-size:.78rem}
-.editor-panel-body{padding:18px 20px}
-.editor-panel-body .list{border:0}
-#annsoon{max-height:520px;overflow:auto}
-#annsoon .row{grid-template-columns:72px minmax(0,1fr);gap:12px;padding:14px 2px}
-#annsoon .row .right{grid-column:2;display:flex!important;justify-content:flex-start!important;flex-wrap:wrap;align-items:center}
-#annsoon .row details{margin-top:6px}
-.editor-compose{display:grid;gap:10px}
-.editor-compose label{font-size:.82rem;color:var(--muted);font-weight:700}
-.editor-compose input,.editor-compose select,.editor-compose textarea{width:100%;background:var(--bg);color:var(--fg);font:inherit;border:1px solid var(--line);border-radius:8px;padding:10px 12px;outline-offset:2px}
-.editor-compose textarea{resize:vertical;min-height:95px}
-#editor-copy-body{min-height:160px}
-.editor-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.editor-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
-.editor-guidance{font-size:.78rem;color:var(--muted);margin:0}
-#editor-feedback{font-size:.82rem;min-height:1.4em;color:var(--ok)}
-#office-queue,#editorial-desk,#case-work,#records-library{scroll-margin-top:15px}
-.office-section-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.office-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--editor-shadow);overflow:hidden}
-.office-card h3{font:700 1.06rem var(--display);margin:0}
-.office-head{padding:17px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
-.office-scroll{max-height:420px;overflow-y:auto;padding:0 6px}
-.office-scroll .list{border:0}
-.office-scroll .row{grid-template-columns:70px minmax(0,1fr);padding:12px 10px}
-.office-scroll .row .right{grid-column:2;display:flex!important;flex-direction:row!important;flex-wrap:wrap}
-.office-records{display:grid;gap:0}
-.office-record{padding:12px 16px;border-top:1px solid var(--line);display:grid;gap:3px}
-.office-record:first-child{border-top:0}
-.office-record-title{font-size:.86rem;font-weight:600}
-.office-record-meta{font-size:.77rem;color:var(--muted)}
-.editor-fold{margin-top:14px;border:1px solid var(--line);border-radius:11px;background:var(--surface);overflow:hidden}
-.editor-fold>summary{font-weight:600;font-size:.86rem;cursor:pointer;padding:13px 16px}
-.editor-fold>div{max-height:360px;overflow:auto}
-.editor-fold .list{border:0}
-.editor-section-card{border:1px solid var(--line);background:var(--surface);border-radius:14px;box-shadow:var(--editor-shadow);padding:16px}
-.editor-section-card .cases{margin-top:12px}
-.editor-section-card .case{box-shadow:none}
-#records-library .tabs{gap:5px;overflow-x:auto;flex-wrap:nowrap;padding:12px 14px 0;background:var(--surface);border:1px solid var(--line);border-bottom:0;border-radius:14px 14px 0 0;scrollbar-width:thin}
-#records-library .tabs button{flex-shrink:0;white-space:nowrap;padding:10px 12px}
-#records-library .filters{padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-bottom:0}
-#records-library .tablebox{border-radius:0 0 14px 14px}
-.editor-secondary>summary{padding:15px 18px}
-.editor-secondary>div{padding:16px;display:grid;gap:22px}
-.editor-secondary section{gap:10px}
-.editor-footer{padding:15px 0;border-top:1px solid var(--line)}
-.editor-footer .foot{line-height:1.7}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--editor-paper:#151211;--editor-shadow:none;--editor-cream:#1E1A19}}
-@media(max-width:1000px){.editor-panels,.office-section-grid{grid-template-columns:1fr}.ly-cal-layout{grid-template-columns:1fr}}
-@media(max-width:760px){.wrap{padding:10px 14px 40px;gap:18px}.editor-header{align-items:flex-start!important}.editor-header-actions{width:100%;justify-content:flex-start}.editor-nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.editor-nav a{white-space:nowrap}.editor-hero{grid-template-columns:1fr;gap:16px}.editor-hero-meta{min-width:0;display:flex;gap:18px;align-items:center}.editor-section-title h2{font-size:1.27rem}.editor-panel-body{padding:14px}.editor-form-row{grid-template-columns:1fr}.office-scroll{max-height:330px}.ly-cal-day{min-height:80px;padding:4px}.ly-cal-toolbar{padding:12px}.editor-header-actions .editor-button{font-size:.8rem;padding:9px 10px}}
-
-.ly-cal-dot.publish{background:#8660A8}.ly-cal-event.publish{background:#EEE7F7;color:#674A91}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){.ly-cal-event.admin{background:#21354A;color:#BCD7FA}.ly-cal-event.publish{background:#33263F;color:#E0C6F9}}}
 </style>
 <style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
 
-<div class="wrap" id="top">
-  <header class="editor-header">
-    <div class="editor-brand" aria-hidden="true">延</div>
-    <div class="editor-brandtext">
-      <div class="editor-kicker">中和玉勅龍延宮 · 宮務行政</div>
-      <h1>文書組 <span>／小編工作台</span></h1>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>龍延宮工作平台</h1>
       <div class="sub" id="today">讀取中…</div>
     </div>
-    <div class="editor-header-actions">
-      <a class="editor-button primary" href="#editorial-desk">✎ 撰寫公告</a>
-      <a class="editor-button" href="#ly-calendar-section">▦ 行事月曆</a>
-      <details class="editor-sources"><summary class="editor-button">資料管理 ▾</summary>
-        <div class="editor-source-pop">
-          <a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/spreadsheets/d/1HQ02MEG6PlqPCZr_zp5nSfnB2LEr6rCIDhChI2TLffs/edit">編輯年度行事曆</a>
-          <a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/spreadsheets/d/1ZWkJc1ilot2s8GneKnsD4npq2LgBQpR5Mf4smaPBDuw/edit">編輯待辦追蹤</a>
-          <a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/spreadsheets/d/1ZS5IsVC1dL9HUyPrXR5ypuuavoEdF8-WamwKGEu0PRg/edit">編輯會議總表</a>
-          <a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/spreadsheets/d/1osJl3bXDSt2G8u6_dsulcPm-Qb8yAYUTZsUJgzHuvgI/edit">編輯公文與決議</a>
-          <a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/spreadsheets/d/1iRKSySM7T0LRll96DtT8fgPF_MsVyUksySv5w9Ds_jE/edit">編輯申辦進度</a>
-          <a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/spreadsheets/d/1dsCVh2H2n4ioPwgqdaetMzvSLoGOWZOtFoWMFtQmGWc/edit">編輯大型活動</a>
-          <a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/spreadsheets/d/1QfNRelkiN4te8oU9seso6oAIytUG6lbyoH-XBVGhkVY/edit">編輯農曆祭典</a>
-          <a target="_blank" rel="noopener noreferrer" href="https://drive.google.com/drive/folders/1ppmue1ljsZZjwInsVFaL5qZyk2BR-J5o">龍延宮雲端資料夾</a>
-          <a target="_blank" rel="noopener noreferrer" href="https://github.com/a0981755429-debug/longyan-platform">GitHub 工作規劃</a>
+    <div class="links">
+      <a class="btn primary" href="#editorial-desk">✎ 撰寫公告</a>
+      <details class="menu" id="menu">
+        <summary class="btn">資料管理</summary>
+        <div class="menu-pop">
+          <div class="menu-h">編輯試算表（本頁每 30 分鐘自動更新）</div>
+          <a target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1HQ02MEG6PlqPCZr_zp5nSfnB2LEr6rCIDhChI2TLffs/edit">編輯行事曆<small>03 年度行事曆</small></a>
+          <a target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1ZWkJc1ilot2s8GneKnsD4npq2LgBQpR5Mf4smaPBDuw/edit">編輯待辦<small>02 待辦追蹤表</small></a>
+          <a target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1ZS5IsVC1dL9HUyPrXR5ypuuavoEdF8-WamwKGEu0PRg/edit">編輯會議總表<small>01 會議記錄總表</small></a>
+          <a target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1iRKSySM7T0LRll96DtT8fgPF_MsVyUksySv5w9Ds_jE/edit">編輯申辦進度<small>04 申辦文書進度表</small></a>
+          <a target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1dsCVh2H2n4ioPwgqdaetMzvSLoGOWZOtFoWMFtQmGWc/edit">編輯大型活動<small>05 大型活動期程表</small></a>
+          <a target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1QfNRelkiN4te8oU9seso6oAIytUG6lbyoH-XBVGhkVY/edit">編輯祭典推估<small>06 農曆祭典推估</small></a>
+          <a target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1osJl3bXDSt2G8u6_dsulcPm-Qb8yAYUTZsUJgzHuvgI/edit">編輯公文決議<small>09 公文與決議追蹤表</small></a>
+          <div class="menu-h">其他</div>
+          <a target="_blank" rel="noopener" href="https://drive.google.com/drive/folders/1ppmue1ljsZZjwInsVFaL5qZyk2BR-J5o">龍延宮雲端資料夾<small>Google 雲端硬碟</small></a>
+          <a target="_blank" rel="noopener" href="https://github.com/a0981755429-debug/longyan-platform">GitHub 平台<small>規劃、待辦卡、小龍程式</small></a>
+          <a target="_blank" rel="noopener" href="https://claude.ai/artifact/5ubLZ94n2QkR3UZFFo8qLH">籌備處案卷<small>需權限</small></a>
         </div>
       </details>
-      <button class="editor-button" id="refresh" type="button" aria-label="重新整理頁面">↻ 更新</button>
+      <button class="btn" id="refresh" type="button">重新整理</button>
     </div>
   </header>
-  <nav class="editor-nav" aria-label="工作台導覽">
-    <a class="is-active" href="#ly-calendar-section">宮務行事曆</a>
-    <a href="#editorial-desk">小編發文</a>
-    <a href="#office-queue">文書待辦</a>
-    <a href="#case-work">申辦案件</a>
-    <a href="#records-library">資料總表</a>
-  </nav>
+
   <div class="notice" id="notice" hidden></div>
-  <section class="editor-hero" aria-label="小編今日工作總覽">
-    <div>
-      <span class="hero-small">EDITORIAL & ADMINISTRATION</span>
-      <h2>掌握宮務日程，讓每份公告都有依據。</h2>
-      <p>從祭典排程、LINE 公告到公文決議，把文書組每天要做的事集中在同一處。</p>
-    </div>
-    <div class="editor-hero-meta">
-      <div><small>未來七天公告排程</small><br><b id="editor-hero-publish">讀取中</b></div>
-      <div><small>公文與決議未完成</small><br><b id="editor-hero-doc">讀取中</b></div>
-    </div>
-  </section>
-  <div class="strip" aria-label="宮務摘要">
+
+  <div class="strip" aria-label="摘要">
     <div class="stat alert"><span class="k">逾期待辦</span><span class="v" id="s-over">–</span></div>
     <div class="stat"><span class="k">未完成待辦</span><span class="v" id="s-open">–</span></div>
     <div class="stat gold"><span class="k">籌備中的活動</span><span class="v" id="s-prep">–</span></div>
-    <div class="stat"><span class="k">未來30天行事</span><span class="v" id="s-30">–</span></div>
+    <div class="stat"><span class="k">30 天內祭典會議</span><span class="v" id="s-30">–</span></div>
   </div>
-  <section id="ly-calendar-section" aria-label="宮務大型行事曆">
-    <div class="editor-section-title">
-      <div><span class="editor-overline">CALENDAR & SCHEDULE</span><h2>宮務行事月曆 <small>國曆・農曆・公告・工作期限</small></h2></div>
-      <p>點選日期，右側立即顯示當天的活動、公告及待辦。</p>
-    </div>
-    <div class="ly-cal-layout">
-      <div class="ly-cal-main">
-        <div class="ly-cal-toolbar">
-          <strong id="ly-cal-title">正在讀取月曆…</strong>
-          <div class="ly-cal-controls">
-            <button type="button" id="ly-cal-prev" aria-label="前一個月份或星期">‹</button>
-            <button type="button" id="ly-cal-today">本月</button>
-            <button type="button" id="ly-cal-next" aria-label="下一個月份或星期">›</button>
-            <button type="button" data-cal-view="month" aria-pressed="true">月</button>
-            <button type="button" data-cal-view="week" aria-pressed="false">週</button>
-            <button type="button" data-cal-view="list" aria-pressed="false">清單</button>
-          </div>
+
+  <div class="main">
+    <section class="calbox" aria-label="宮務月曆">
+      <div class="caltool">
+        <div class="calnav">
+          <button class="btn icon" type="button" id="cal-prev" aria-label="上一頁">‹</button>
+          <div class="caltitle"><b id="cal-title">–</b><span id="cal-sub" class="meta"></span></div>
+          <button class="btn icon" type="button" id="cal-next" aria-label="下一頁">›</button>
+          <button class="btn" type="button" id="cal-today">今天</button>
         </div>
-        <div class="ly-cal-legend"><span><i class="ly-cal-dot ritual"></i>祭典</span><span><i class="ly-cal-dot event"></i>法會活動</span><span><i class="ly-cal-dot admin"></i>行政／公文</span><span><i class="ly-cal-dot task"></i>待辦期限</span><span><i class="ly-cal-dot publish"></i>公告排程</span></div>
-        <div id="ly-cal-weekdays" class="ly-cal-weekdays"></div>
-        <div id="ly-cal-grid" class="ly-cal-grid"></div>
-        <div id="ly-cal-list" class="ly-cal-list" hidden></div>
-        <div class="ly-cal-note">日期內容來自原行事曆、祭典推估、公告排程及工作資料。尚未經確認之事項以來源標示為準。</div>
+        <div class="seg" role="group" aria-label="檢視方式">
+          <button type="button" data-view="month">月</button><button type="button" data-view="week">週</button><button type="button" data-view="list">清單</button>
+        </div>
       </div>
-      <aside class="ly-cal-side">
-        <div class="ly-cal-side-head"><strong id="ly-cal-detail-title">當日行事</strong><div class="meta">按日期檢視祭典、文書工作與公告草稿</div><button class="editor-day-action" id="editor-from-selected" type="button">用這個日期撰寫公告 →</button></div>
-        <div id="ly-cal-detail" class="ly-cal-side-body">讀取中…</div>
-      </aside>
-    </div>
-  </section>
-  <section id="editorial-desk">
-    <div class="editor-section-title">
-      <div><span class="editor-overline">EDITORIAL DESK</span><h2>小編發文中心 <small>公告排程・撰稿・複製文案</small></h2></div>
-      <p>先核對日期與工作內容，再將草稿交由人員審閱發布。</p>
-    </div>
+      <div class="legend">
+        <div class="cats" id="cats" aria-label="分類（點選可隱藏）"></div>
+        <div class="confs meta" aria-label="日期可信度">
+          <span class="chip cat-rite cf-ok">已確認</span><span class="chip cat-rite cf-temp">暫訂</span><span class="chip cat-rite cf-est">推估</span><span class="chip cat-rite cf-tbd">待擲筊</span>
+        </div>
+      </div>
+      <div id="calview"><div class="empty">正在讀取行事資料…</div></div>
+    </section>
+
+    <aside class="side">
+      <section class="card" id="day" aria-live="polite"></section>
+      <section class="card">
+        <h2>需要處理 <small>逾期、緊急、兩週內到期與待確認</small></h2>
+        <div class="list flat" id="attention"><div class="empty">正在讀取待辦追蹤表…</div></div>
+      </section>
+      <section class="card">
+        <h2>公文與會議決議 <small>未完成・依期限</small></h2>
+        <div id="editor-office-records" class="office-records"><div class="empty">正在讀取公文與決議…</div></div>
+        <div><button class="btn" type="button" data-gotab="rec">查看追蹤表</button></div>
+      </section>
+    </aside>
+  </div>
+
+  <section id="editorial-desk" aria-label="小編發文中心">
+    <h2>小編發文中心 <small>公告排程・撰稿・複製文案</small></h2>
     <div class="editor-panels">
-      <article class="editor-panel">
-        <div class="editor-panel-head"><h3>近期待發公告</h3><small id="editor-ann-caption">未來七天</small></div>
-        <div class="editor-panel-body">
-          <div id="annsoon" class="list"><div class="empty">正在讀取公告排程…</div></div>
-          <button type="button" class="editor-button" data-to-tab="ann">查看完整公告排程 →</button>
-        </div>
+      <article class="card">
+        <div class="editor-head"><h3>近期待發公告</h3><small class="meta" id="editor-ann-caption">未來七天</small></div>
+        <div class="list flat" id="annsoon"><div class="empty">正在讀取公告排程…</div></div>
+        <div><button class="btn" type="button" data-gotab="ann">查看完整公告排程</button></div>
       </article>
-      <article class="editor-panel">
-        <div class="editor-panel-head"><h3>發文草稿工作區</h3><small>僅於本頁編輯，未自動發布</small></div>
-        <div class="editor-panel-body">
-          <div class="editor-compose">
-            <div class="editor-form-row">
-              <div><label for="editor-type">文案用途</label><select id="editor-type"><option>LINE 群組通知</option><option>信眾活動宣傳</option><option>工作人員召集</option><option>正式公告</option><option>Facebook 社群貼文</option></select></div>
-              <div><label for="editor-topic">主題／活動名稱</label><input id="editor-topic" type="text" placeholder="例如：祈安禮斗法會"></div>
-            </div>
-            <label for="editor-copy-body">文案草稿</label>
-            <textarea id="editor-copy-body" rows="7" placeholder="可點選左側「帶入草稿」，或由月曆選擇日期後產生公告草稿。"></textarea>
-            <div class="editor-actions">
-              <button class="editor-button" type="button" id="editor-create">依主題建立草稿</button>
-              <button class="editor-button primary" type="button" id="editor-copy">複製文案</button>
-              <button class="editor-button" type="button" id="editor-ai-copy">複製給 ChatGPT 的修改指令</button>
-              <a class="editor-button" target="_blank" rel="noopener noreferrer" href="https://chatgpt.com/">開啟 ChatGPT ↗</a>
-            </div>
-            <p class="editor-guidance">公告草稿、祭典推估與工作安排不等於正式核定；發布前請人工查核日期、時間、收費及人員資訊。</p>
-            <span id="editor-feedback" role="status" aria-live="polite"></span>
+      <article class="card">
+        <div class="editor-head"><h3>發文草稿工作區</h3><small class="meta">只在本頁編輯，不會自動發布</small></div>
+        <div class="editor-compose">
+          <div class="editor-form-row">
+            <div><label for="editor-type">文案用途</label><select id="editor-type"><option>LINE 群組通知</option><option>信眾活動宣傳</option><option>工作人員召集</option><option>正式公告</option><option>Facebook 社群貼文</option></select></div>
+            <div><label for="editor-topic">主題／活動名稱</label><input id="editor-topic" type="text" placeholder="例如：祈安禮斗法會"></div>
           </div>
+          <label for="editor-copy-body">文案草稿</label>
+          <textarea id="editor-copy-body" rows="8" placeholder="可點選左側「帶入草稿」，或在月曆選日期後按「用這個日期撰寫公告」。"></textarea>
+          <div class="editor-actions">
+            <button class="btn" type="button" id="editor-create">依主題建立草稿</button>
+            <button class="btn primary" type="button" id="editor-copy">複製文案</button>
+            <button class="btn" type="button" id="editor-ai-copy">複製給 ChatGPT 的修改指令</button>
+            <a class="btn" target="_blank" rel="noopener noreferrer" href="https://chatgpt.com/">開啟 ChatGPT ↗</a>
+          </div>
+          <p class="meta" style="margin:0">公告草稿、祭典推估與工作安排不等於正式核定；發布前請人工查核日期、時間、收費及人員資訊。</p>
+          <span id="editor-feedback" role="status" aria-live="polite"></span>
         </div>
       </article>
     </div>
   </section>
-  <section id="office-queue">
-    <div class="editor-section-title">
-      <div><span class="editor-overline">DOCUMENTS & TO-DO</span><h2>文書組工作追蹤 <small>優先處理・公文決議</small></h2></div>
-      <p>集中看尚未完成的行政工作與待辦事項。</p>
-    </div>
-    <div class="office-section-grid">
-      <article class="office-card"><div class="office-head"><h3>優先處理</h3><button type="button" class="editor-button" data-to-tab="todo">全部待辦 →</button></div><div class="office-scroll"><div id="attention" class="list"><div class="empty">正在讀取待辦…</div></div></div></article>
-      <article class="office-card"><div class="office-head"><h3>公文與會議決議</h3><button type="button" class="editor-button" data-to-tab="rec">查看追蹤表 →</button></div><div class="office-scroll"><div id="editor-office-records" class="office-records"><div class="empty">正在讀取公文與決議…</div></div></div></article>
-    </div>
-    <details class="editor-fold"><summary>▸ 展開近期九十天行事清單</summary><div><div id="upcoming" class="list"><div class="empty">正在讀取年度行事曆…</div></div></div></details>
-  </section>
-  <section id="case-work">
-    <div class="editor-section-title"><div><span class="editor-overline">APPLICATION & CORRESPONDENCE</span><h2>申辦案件概況 <small>籌備處・不動產審認・協會</small></h2></div>
-    <a class="editor-button" target="_blank" rel="noopener noreferrer" href="https://claude.ai/artifact/5ubLZ94n2QkR3UZFFo8qLH">開啟籌備處案卷（需權限） ↗</a></div>
-    <div class="editor-section-card"><div class="cases" id="cases"><div class="empty">正在讀取申辦文書進度表…</div></div></div>
-  </section>
-  <section id="records-library">
-    <div class="editor-section-title"><div><span class="editor-overline">ARCHIVE & RECORDS</span><h2>完整宮務資料 <small>待辦・會議・活動・文書</small></h2></div><p>資料來源仍以原始 Google 試算表為準。</p></div>
+
+  <section id="work" aria-label="詳細管理區">
     <div class="tabs" role="tablist">
       <button role="tab" id="tab-todo" aria-selected="true" type="button">全部待辦</button>
-      <button role="tab" id="tab-cal" aria-selected="false" type="button">年度行事曆</button>
-      <button role="tab" id="tab-ann" aria-selected="false" type="button">公告排程</button>
-      <button role="tab" id="tab-rec" aria-selected="false" type="button">公文與決議</button>
-      <button role="tab" id="tab-mtg" aria-selected="false" type="button">會議紀錄</button>
       <button role="tab" id="tab-ev" aria-selected="false" type="button">大型活動</button>
-      <button role="tab" id="tab-doc" aria-selected="false" type="button">申辦進度</button>
+      <button role="tab" id="tab-doc" aria-selected="false" type="button">申辦期程</button>
+      <button role="tab" id="tab-cal" aria-selected="false" type="button">年度行事曆</button>
       <button role="tab" id="tab-lunar" aria-selected="false" type="button">農曆祭典推估</button>
       <button role="tab" id="tab-flow" aria-selected="false" type="button">活動流程</button>
+      <button role="tab" id="tab-ann" aria-selected="false" type="button">公告排程</button>
+      <button role="tab" id="tab-mtg" aria-selected="false" type="button">會議記錄</button>
+      <button role="tab" id="tab-rec" aria-selected="false" type="button">公文與決議</button>
+      <button role="tab" id="tab-gh" aria-selected="false" type="button">GitHub 規劃</button>
+    </div>
+    <div class="cases" id="events" hidden><div class="empty">正在讀取大型活動期程表…</div></div>
+    <div id="casebox" hidden>
+      <p class="meta" style="margin:0 0 10px">期限試算、補正追蹤、收發文紀錄與文件清單：<a class="btn" target="_blank" rel="noopener" href="https://claude.ai/artifact/5ubLZ94n2QkR3UZFFo8qLH">籌備處案卷（需權限）</a></p>
+      <div class="cases" id="cases"><div class="empty">正在讀取申辦文書進度表…</div></div>
+    </div>
+    <div id="ghbox" hidden>
+      <p class="meta" style="margin:0 0 10px" id="gh-at">里程碑與規劃型待辦卡</p>
+      <div class="cases" id="gh"><div class="empty">正在讀取 GitHub 規劃…</div></div>
     </div>
     <div class="filters" id="filters"></div>
     <div class="tablebox" id="panel"><div class="empty">讀取中…</div></div>
   </section>
-  <details class="editor-fold editor-secondary">
-    <summary>▸ 其他管理資訊：大型活動進度、GitHub 規劃、未來統計模組</summary>
-    <div>
-      <section><h2>大型活動 <small>各階段預估期程・下一步</small></h2><div class="cases" id="events"><div class="empty">正在讀取大型活動期程…</div></div></section>
-      <section><h2>GitHub 規劃 <small id="gh-at">里程碑與規劃型待辦卡</small></h2><div class="cases" id="gh"><div class="empty">正在讀取 GitHub 規劃…</div></div></section>
-      <section><h2>資料匯入後擴充</h2><div class="future"><div class="card"><b>法會與點燈 KPI</b><span class="meta">待導入宮廟管理系統之報名與點燈資料。</span></div><div class="card"><b>活動財務收支</b><span class="meta">待整合原始財務帳冊後啟用。</span></div><div class="card"><b>志工人力</b><span class="meta">待導入活動人力與出勤資料後啟用。</span></div></div></section>
+
+  <details class="phase2">
+    <summary><b>第二階段</b> <span class="meta">資料匯入後啟用：法會與點燈 KPI、財務收支、志工與人力</span></summary>
+    <div class="future">
+      <div class="card"><b>法會與點燈 KPI</b><span class="meta">普渡、點燈、拜斗、聖誕平安宴的報名數、桌數、收入，並與去年同期比較。資料來源：宮廟管理軟體。</span></div>
+      <div class="card"><b>財務收支</b><span class="meta">依活動代碼彙整收入與支出，呈現每月趨勢與各活動結餘。</span></div>
+      <div class="card"><b>志工與人力</b><span class="meta">各活動所需人力與實際出勤，對應簽到表。</span></div>
     </div>
   </details>
-  <footer class="editor-footer">
-    <details class="foot" id="health"><summary>資料檢查</summary><div class="tablebox" style="margin-top:8px"></div></details>
-    <div class="foot" id="foot">資料來自龍延宮工作平台之雲端試算表。修改請於原始資料中進行，本頁定期更新。</div>
-  </footer>
+
+  <details class="foot" id="health"><summary>資料檢查</summary><div class="tablebox" style="margin-top:8px"></div></details>
+  <div class="foot" id="foot">資料來源：雲端硬碟「龍延宮工作平台」資料夾的試算表；活動流程與幹部決議整理自 LINE 群組紀錄。修改請在試算表中進行，本頁會自動更新。</div>
 </div>
+
 <script>
 const FILES = {
   cal: "1HQ02MEG6PlqPCZr_zp5nSfnB2LEr6rCIDhChI2TLffs",
@@ -430,7 +386,6 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 const now = new Date(); const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-$("today").textContent = `今天 民國 ${today.getFullYear()-1911} 年 ${today.getMonth()+1} 月 ${today.getDate()} 日（${DOW[today.getDay()]}）`;
 
 function parseCSV(text){
   const rows=[]; let row=[], f="", q=false;
@@ -481,67 +436,21 @@ function statusPill(s, over){
   return `<span class="pill ${map[s]||"p-mute"}">${esc(s||"—")}</span>`;
 }
 
-
-const LY_CAL={y:today.getFullYear(),m:today.getMonth(),date:new Date(today),view:window.matchMedia("(max-width:600px)").matches?"week":"month"};
-const lySame=(a,b)=>a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
-const lyKey=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-const lyKind=s=>/會議|行政|公文|申辦|會務/.test(s)?"admin":/禮斗|普渡|法會|進香|平安宴|聖誕/.test(s)?"event":"ritual";
-function lyItems(d){
- const out=[],seen=new Set();
- function add(n,kind,info,id){if(!n||seen.has(id))return;seen.add(id);out.push({n,kind,info});}
- (state.cal||[]).forEach(r=>{if(lySame(toDate(r["國曆日期"]),d))add(r["活動"],lyKind((r["類別"]||"")+" "+(r["活動"]||"")),(r["主辦"]||"")+"・"+(r["日期狀態"]||""),"cal|"+r["活動"]);});
- (state.lunar||[]).forEach(r=>{if(!lySame(toDate(r["國曆日期"]),d))return;const n=r["項目"]||r["活動"];if(out.some(e=>e.n===n))return;add(n,lyKind((r["類別"]||"")+" "+n),(r["農曆"]||"")+"・"+(r["可信度"]||""),"lunar|"+n);});
- (state.todo||[]).forEach(r=>{if(isOpen(r)&&lySame(toDate(r["期限"]),d))add(r["待辦事項"],"task",(r["負責"]||"未指派")+"・"+(r["狀態"]||""),"todo|"+r["編號"]);});
-
- (state.ann||[]).forEach(r=>{if(lySame(toDate(r["發布日期"]),d))add("公告排程："+(r["標題"]||r["活動"]),"publish",(r["發布時間"]||"")+"・"+(r["可信度"]||"草稿"),"ann|"+r["標題"]+"|"+r["發布時間"]);});
- (state.rec||[]).forEach(r=>{if(isOpen(r)&&lySame(toDate(r["期限"]),d))add("文書期限："+(r["主旨／決議內容"]||r["來源"]),"admin",(r["負責"]||"")+"・"+(r["狀態"]||""),"rec|"+r["編號"]);});
- return out;
-}
-function lyLunar(d){
- const r=(state.lunar||[]).find(x=>lySame(toDate(x["國曆日期"]),d)&&x["農曆"])||(state.cal||[]).find(x=>lySame(toDate(x["國曆日期"]),d)&&x["農曆"]);
- if(r)return (r["農曆"]||"").replace(/^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]年/,"");
- try{const parts=new Intl.DateTimeFormat("zh-TW-u-ca-chinese",{month:"long",day:"numeric"}).formatToParts(d);const mon=parts.find(p=>p.type==="month")?.value||"";const n=Number(parts.find(p=>p.type==="day")?.value||0);const z=["","一","二","三","四","五","六","七","八","九","十"];const day=n===10?"初十":n===20?"二十":n===30?"三十":n<10?"初"+z[n]:n<20?"十"+z[n-10]:"廿"+z[n-20];return mon+day;}catch(_){return "";}
-}
-function renderLYCalendar(){
- const grid=$("ly-cal-grid"),lst=$("ly-cal-list");if(!grid)return;
- $("ly-cal-title").textContent="民國"+(LY_CAL.y-1911)+"年 "+(LY_CAL.m+1)+"月";
- document.querySelectorAll("[data-cal-view]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.calView===LY_CAL.view)));
- $("ly-cal-weekdays").hidden=LY_CAL.view==="list";grid.hidden=LY_CAL.view==="list";lst.hidden=LY_CAL.view!=="list";
- $("ly-cal-weekdays").innerHTML=DOW.map(n=>"<div>週"+n+"</div>").join("");
- const begin=new Date(LY_CAL.y,LY_CAL.m,1),end=new Date(LY_CAL.y,LY_CAL.m+1,0),start=new Date(begin);
- if(LY_CAL.view==="week"){start.setTime(LY_CAL.date.getTime());start.setDate(start.getDate()-start.getDay());}
- else start.setDate(1-begin.getDay());
- if(LY_CAL.view==="list"){
-  const rows=[];for(let day=1;day<=end.getDate();day++){const d=new Date(LY_CAL.y,LY_CAL.m,day),items=lyItems(d);if(!items.length)continue;
-   rows.push('<button type="button" data-ly-date="'+lyKey(d)+'"><strong style="min-width:55px">'+(d.getMonth()+1)+'/'+day+'<br><small>週'+DOW[d.getDay()]+'</small></strong><span>'+items.map(e=>'<span class="ly-cal-event '+e.kind+'">'+esc(e.n)+'</span>').join("")+'</span></button>');}
-  lst.innerHTML=rows.join("")||'<div class="empty">本月尚無排定事項。</div>';
- }else{
-  const len=LY_CAL.view==="week"?7:Math.ceil((begin.getDay()+end.getDate())/7)*7,cells=[];
-  for(let i=0;i<len;i++){const d=new Date(start);d.setDate(start.getDate()+i);const items=lyItems(d),chosen=lySame(d,LY_CAL.date);
-   cells.push('<button type="button" data-ly-date="'+lyKey(d)+'" class="ly-cal-day'+(d.getMonth()!==LY_CAL.m?' outside':'')+(chosen?' selected':'')+(lySame(d,today)?' today':'')+'" aria-pressed="'+chosen+'" aria-label="'+lyKey(d)+' '+items.length+'項行事"><span class="ly-cal-dates"><span class="ly-cal-n">'+d.getDate()+'</span><span class="ly-cal-lunar">'+esc(lyLunar(d))+'</span></span><span class="ly-cal-indicators">'+items.slice(0,4).map(e=>'<i class="ly-cal-dot '+e.kind+'"></i>').join("")+'</span>'+items.slice(0,3).map(e=>'<span class="ly-cal-event '+e.kind+'">'+esc(e.n)+'</span>').join("")+(items.length>3?'<span class="ly-cal-more">另有 '+(items.length-3)+' 項</span>':'')+'</button>');
-  }grid.innerHTML=cells.join("");
- }
- const d=LY_CAL.date,items=lyItems(d);
- $("ly-cal-detail-title").textContent=(d.getMonth()+1)+"月"+d.getDate()+"日・週"+DOW[d.getDay()];
- $("ly-cal-detail").innerHTML=items.length?items.map(e=>'<div class="ly-cal-detail"><strong><i class="ly-cal-dot '+e.kind+'"></i>'+esc(e.n)+'</strong><small>'+esc(e.info)+'</small></div>').join(""):'<div class="empty">本日沒有已登錄的活動或到期待辦。</div>';
-}
-function lySelect(s){const d=toDate(s);if(!d||isNaN(+d))return;LY_CAL.date=d;LY_CAL.y=d.getFullYear();LY_CAL.m=d.getMonth();renderLYCalendar();}
-function lyMove(n){if(LY_CAL.view==="week"){const d=new Date(LY_CAL.date);d.setDate(d.getDate()+n*7);lySelect(lyKey(d));}else lySelect(lyKey(new Date(LY_CAL.y,LY_CAL.m+n,1)));}
-$("ly-cal-prev").addEventListener("click",()=>lyMove(-1));
-$("ly-cal-next").addEventListener("click",()=>lyMove(1));
-$("ly-cal-today").addEventListener("click",()=>lySelect(lyKey(today)));
-document.querySelectorAll("[data-cal-view]").forEach(b=>b.addEventListener("click",()=>{LY_CAL.view=b.dataset.calView;renderLYCalendar();}));
-["ly-cal-grid","ly-cal-list"].forEach(id=>$(id).addEventListener("click",e=>{const b=e.target.closest("[data-ly-date]");if(b)lySelect(b.dataset.lyDate);}));
-
 function renderSummary(){
   const t=state.todo, c=state.cal;
   $("s-over").textContent = t? t.filter(isOver).length : "–";
   $("s-open").textContent = t? t.filter(isOpen).length : "–";
-  if(c){
-    const live=c.filter(e=>{const d=toDate(e["國曆日期"]),p=toDate(e["建議開始籌備"]);return d&&p&&p<=today&&d>=today;});
-    $("s-prep").textContent=live.length;
-    $("s-30").textContent=c.filter(e=>{const d=toDate(e["國曆日期"]);return d&&days(d)>=0&&days(d)<=30;}).length;
-  } else { $("s-prep").textContent="–"; $("s-30").textContent="–"; }
+  if(!c && !state.ev && !state.lunar){ $("s-prep").textContent="–"; $("s-30").textContent="–"; return; }
+  // 籌備中：05 的活動（第一個階段已到、活動日未過）＋ 03 中沒有列在 05 的活動（已到建議開始籌備日）
+  const evCodes=new Set((state.ev||[]).map(r=>r["活動代碼"]));
+  const evLive=[...evCodes].filter(code=>{const rs=state.ev.filter(r=>r["活動代碼"]===code), d0=toDate(rs[0]["活動日"]);
+    const first=rs.map(evDate).filter(Boolean).sort((a,b)=>a-b)[0]; return d0&&first&&first<=today&&d0>=today;});
+  const calLive=(c||[]).filter(e=>{const d=toDate(e["國曆日期"]),p=toDate(e["建議開始籌備"]);return !evCodes.has(e["活動代碼"])&&d&&p&&p<=today&&d>=today;});
+  $("s-prep").textContent=evLive.length+calLive.length;
+  // 未來 30 天行事：月曆上的祭典、法會、會議（不含截止日與準備步驟）
+  const m=(state.items||buildItems()).map; let n=0;
+  for(let i=0;i<=30;i++) n+=(m[iso(addDays(today,i))]||[]).filter(it=>!["due","step","prep","ann"].includes(it.kind)&&it.cat!=="task"&&it.cat!=="pub").length;
+  $("s-30").textContent=n;
 }
 
 function renderCases(){
@@ -588,26 +497,6 @@ function renderEvents(){
   }).join("");
 }
 
-function renderUpcoming(){
-  const el=$("upcoming");
-  if(!state.cal){ el.innerHTML=`<div class="empty">${state.err.cal? esc(state.err.cal) : "正在從雲端硬碟讀取年度行事曆…"}</div>`; return; }
-  const calItems=state.cal.map(e=>({...e,_d:toDate(e["國曆日期"]),_p:toDate(e["建議開始籌備"])}));
-  const taken=new Set(calItems.filter(e=>e._d).map(e=>+e._d));
-  const lunarItems=(state.lunar||[]).filter(r=>r["類別"]!=="例行").map(r=>({_d:toDate(r["國曆日期"]),_p:null,"農曆":(r["農曆"]||"").replace(/^..年/,""),"活動":r["項目"],"主辦":[r["時間"],r["活動"]].filter(Boolean).join(" "),"日期狀態":r["可信度"],"類別":r["類別"],_lunar:true}))
-    .filter(r=>r._d && !(r["類別"]==="神明聖誕" && taken.has(+r._d)));
-  const items=calItems.concat(lunarItems)
-    .filter(e=>e._d&&days(e._d)>=0&&days(e._d)<=90).sort((a,b)=>a._d-b._d);
-  if(!items.length){ el.innerHTML=`<div class="empty">未來 90 天沒有排定的行事。</div>`; return; }
-  el.innerHTML=items.map(e=>{
-    const n=days(e._d);
-    const when = n===0? `<span class="pill p-red">今天</span>` : `<span class="pill p-mute">${n} 天後</span>`;
-    const prep = e._p && e._p<=today ? `<span class="pill p-gold">籌備中</span>` : (e._p? `<span class="meta">${md(e._p)} 起籌備</span>`:"");
-    return `<div class="row"><div class="date">${md(e._d)}<span class="dow">週${DOW[e._d.getDay()]}${e["農曆"]?`・${esc(e["農曆"])}`:""}</span></div>
-      <div><div class="ttl">${esc(e["活動"])}</div><div class="meta">${esc(e["主辦"])}・${esc(e["日期狀態"])}</div></div>
-      <div class="right" style="display:grid;gap:4px;justify-items:end">${when}${prep}</div></div>`;
-  }).join("");
-}
-
 function renderAttention(){
   const el=$("attention");
   if(!state.todo){ el.innerHTML=`<div class="empty">${state.err.todo? esc(state.err.todo) : "正在讀取待辦追蹤表…"}</div>`; return; }
@@ -616,12 +505,13 @@ function renderAttention(){
   const items=state.todo.filter(t=>isOver(t)||isHot(t)||t["狀態"]==="待確認").concat(docs,evs)
     .sort((a,b)=>(isOver(b)-isOver(a)) || ((toDate(a["期限"])||9e15)-(toDate(b["期限"])||9e15)) || (priRank(a)-priRank(b)));
   if(!items.length){ el.innerHTML=`<div class="empty">目前沒有逾期或待確認的待辦。</div>`; return; }
-  el.innerHTML=items.map(t=>{
+  const LIMIT=8;
+  el.innerHTML=items.slice(0,LIMIT).map(t=>{
     const d=toDate(t["期限"]);
     return `<div class="row"><div class="date">${d? md(d):"—"}<span class="dow">${esc(t["編號"])}</span></div>
       <div><div class="ttl">${esc(t["待辦事項"])}</div><div class="meta">${esc(t["負責"])}・${esc(t["來源會議"])}</div></div>
       <div class="right" style="display:grid;gap:4px;justify-items:end">${priPill(t)}${statusPill(t["狀態"], isOver(t))}</div></div>`;
-  }).join("");
+  }).join("") + (items.length>LIMIT?`<div style="padding-top:8px"><button class="btn" type="button" data-gotab="todo">還有 ${items.length-LIMIT} 項・看全部待辦</button></div>`:"");
 }
 
 const FILTERS = {
@@ -636,10 +526,20 @@ const FILTERS = {
   rec: ["未完成","會議決議","發文","來文","全部"],
   dec: ["未定案","全部","定價","採購","建設","行政","祭典"]
 };
+const TABS=["todo","ev","doc","cal","lunar","flow","ann","mtg","rec","gh"];
+// 大型活動分頁的篩選：除了固定選項，另外列出每個進行中的活動（值用活動代碼，避免兩年同名）
+function evFilterList(){
+  const codes=[...new Set((state.ev||[]).filter(isOpen).map(r=>r["活動代碼"]).filter(Boolean))];
+  return FILTERS.ev.concat(codes);
+}
+const evLabel = code => { const r=(state.ev||[]).find(x=>x["活動代碼"]===code); return r? `${r["大型活動"].replace(/（.*?）/g,"")}（${code.split("-")[0]}）` : code; };
 function renderPanel(){
-  for(const k of ["todo","cal","mtg","doc","ev","lunar","ann","flow","rec"]) $("tab-"+k).setAttribute("aria-selected", String(state.tab===k));
-  const fs=FILTERS[state.tab]; if(!fs.includes(state.filter)) state.filter=fs[0];
-  $("filters").innerHTML=fs.map(f=>`<button type="button" data-f="${f}" aria-pressed="${state.filter===f}">${f}</button>`).join("")+
+  for(const k of TABS) $("tab-"+k).setAttribute("aria-selected", String(state.tab===k));
+  $("events").hidden=state.tab!=="ev"; $("casebox").hidden=state.tab!=="doc"; $("ghbox").hidden=state.tab!=="gh";
+  $("filters").hidden=$("panel").hidden=state.tab==="gh";
+  if(state.tab==="gh") return;
+  const fs=state.tab==="ev"? evFilterList() : FILTERS[state.tab]; if(!fs.includes(state.filter)) state.filter=fs[0];
+  $("filters").innerHTML=fs.map(f=>`<button type="button" data-f="${esc(f)}" aria-pressed="${state.filter===f}">${esc(state.tab==="ev"&&!FILTERS.ev.includes(f)?evLabel(f):f)}</button>`).join("")+
     (state.tab==="todo"&&state.todo?`<label class="meta" style="margin-left:auto">我的工作：<select id="who"><option value="">全部人</option>${[...new Set(state.todo.flatMap(t=>(t["負責"]||"").split(/[／\/、,，（）()]/).map(x=>x.replace(/主席|紀錄/g,"").trim()).filter(x=>x&&x.length<=6)))].sort().map(n=>`<option ${n===state.who?"selected":""}>${esc(n)}</option>`).join("")}</select></label>`:"");
   const box=$("panel"), data=state[state.tab];
   if(!data){ box.innerHTML=`<div class="empty">${esc(state.err[state.tab]||"讀取中…")}</div>`; return; }
@@ -658,7 +558,7 @@ function renderPanel(){
     if(!rows.length) html=`<div class="empty">沒有符合的行事。</div>`;
   } else if(state.tab==="ev"){
     const f=state.filter;
-    const rows=data.filter(r=>{const d=evDate(r); return f==="全部" || (f==="已過預估日"&&evOver(r)) || (f==="未來90天"&&isOpen(r)&&d&&days(d)>=0&&days(d)<=90);})
+    const rows=data.filter(r=>{const d=evDate(r); return f==="全部" || r["活動代碼"]===f || (f==="已過預估日"&&evOver(r)) || (f==="未來90天"&&isOpen(r)&&d&&days(d)>=0&&days(d)<=90);})
       .slice().sort((a,b)=>(evDate(a)||9e15)-(evDate(b)||9e15));
     html=`<table><thead><tr><th>預估日期</th><th>大型活動</th><th>工作內容</th><th>距活動日</th><th>負責</th><th>狀態</th><th>備註</th></tr></thead><tbody>`+
       rows.map(r=>{const d=evDate(r), off=+r["距活動日"]; return `<tr class="${evOver(r)?"over":""}"><td class="num">${esc(r["預估日期"])}${d&&isOpen(r)&&days(d)>=0?`<div class="meta">${days(d)} 天後</div>`:""}</td><td>${esc(r["大型活動"])}<div class="meta">活動日 ${esc(r["活動日"])}</div></td><td>${esc(r["工作內容"])}</td><td class="num">${isNaN(off)?"—":off===0?"當天":off<0?`前 ${-off} 天`:`後 ${off} 天`}</td><td style="white-space:nowrap">${esc(r["負責"])}</td><td>${statusPill(evSoon(r)&&!evOver(r)?"即將到期":r["狀態"], evOver(r))}</td><td class="meta">${esc(r["備註"])}${r["依據"]?`<br>${esc(r["依據"])}`:""}</td></tr>`;}).join("")+`</tbody></table>`;
@@ -726,12 +626,14 @@ function flowRows(){
   });
 }
 function renderAnnSoon(){
- const el=$("annsoon");
- if(!state.ann){el.innerHTML='<div class="empty">'+esc(state.err.ann||"正在讀取公告排程…")+'</div>';return;}
- const items=state.ann.map((a,i)=>({a,i,d:toDate(a["發布日期"])})).filter(x=>x.d&&days(x.d)>=0&&days(x.d)<=7).sort((a,b)=>a.d-b.d);
- const cap=$("editor-ann-caption");if(cap)cap.textContent="未來七天・"+items.length+" 則排程";
- if(!items.length){el.innerHTML='<div class="empty">未來七天沒有排定的公告。可由月曆選取日期建立新草稿。</div>';return;}
- el.innerHTML=items.map(({a,i,d})=>'<div class="row"><div class="date">'+md(d)+'<span class="dow">週'+DOW[d.getDay()]+'<br>'+esc(a["發布時間"]||"")+'</span></div><div><div class="ttl">'+esc(a["標題"])+'</div><div class="meta">'+esc(a["公告類型"])+'・'+esc(a["活動"])+'・'+esc(a["可信度"]||"日期待確認")+'</div><div class="right" style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:8px"><button class="btn" type="button" data-editor-ann="'+i+'">帶入草稿</button><button class="btn" type="button" data-copy="'+i+'">複製內容</button><details><summary class="meta">預覽</summary><pre class="draft">'+esc(a["公告內容草稿"])+'</pre><div class="meta">'+esc(a["發布時點依據"])+'</div></details></div></div></div>').join("");
+  const el=$("annsoon");
+  if(!state.ann){ el.innerHTML=`<div class="empty">${esc(state.err.ann||"正在讀取公告排程…")}</div>`; return; }
+  const items=state.ann.map((a,i)=>({a,i,d:toDate(a["發布日期"])})).filter(x=>x.d&&days(x.d)>=0&&days(x.d)<=7).sort((x,y)=>x.d-y.d);
+  $("editor-ann-caption").textContent=`今天與未來七天・${items.length} 則`;
+  if(!items.length){ el.innerHTML=`<div class="empty">未來七天沒有排定的公告。可在月曆選日期後建立草稿。</div>`; return; }
+  el.innerHTML=items.map(({a,i,d})=>`<div class="row"><div class="date">${md(d)}<span class="dow">週${DOW[d.getDay()]} ${esc(a["發布時間"])}</span>${days(d)===0?`<span class="pill p-red">今天</span>`:""}</div>
+    <div><div class="ttl">${esc(a["標題"])}</div><div class="meta">${esc(a["公告類型"])}・工作日 ${esc(a["對應工作日期"])}${a["可信度"]?`・${esc(a["可信度"])}`:""}</div>${a["服裝"]?`<div class="meta">工作人員 ${a["工作人員報到"]?esc(a["工作人員報到"])+" 到・":""}${esc(a["服裝"])}・${esc(a["集合地點"]||"本宮")}</div>`:""}
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px"><button class="btn" type="button" data-editor-ann="${i}">帶入草稿</button><button class="btn" type="button" data-copy="${i}">複製</button><details><summary class="meta">預覽</summary><pre class="draft">${esc(a["公告內容草稿"])}</pre><div class="meta">${esc(a["發布時點依據"])}</div></details></div></div></div>`).join("");
 }
 document.addEventListener("click",e=>{
   const b=e.target.closest("button[data-copy]"); if(!b||!state.ann) return;
@@ -741,69 +643,57 @@ document.addEventListener("click",e=>{
   else { const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");done();}catch(_){} ta.remove(); }
 });
 
-/* 小編發文與公文追蹤（僅使用公開的原有資料；不寫入原始表單） */
+/* 小編發文中心（移植自 2.1）：只讀公開資料，不寫回試算表 */
 function editorPreview(){
- const pub=(state.ann||[]).filter(a=>{const d=toDate(a["發布日期"]);return d&&days(d)>=0&&days(d)<=7});
- const active=(state.rec||[]).filter(isOpen);
- $("editor-hero-publish").textContent=state.ann?pub.length+" 則排程":"讀取中";
- $("editor-hero-doc").textContent=state.rec?active.length+" 件追蹤中":"讀取中";
- const p=$("editor-office-records");if(!p)return;
- if(!state.rec){p.innerHTML='<div class="empty">正在讀取公文與決議資料…</div>';return;}
- const work=active.slice().sort((a,b)=>{
- const da=toDate(a["期限"]),db=toDate(b["期限"]);return (da?+da:Infinity)-(db?+db:Infinity);
- }).slice(0,7);
- p.innerHTML=work.length?work.map(r=>'<div class="office-record"><span class="office-record-title">'+esc(r["主旨／決議內容"]||r["來源"]||"未命名工作")+'</span><span class="office-record-meta">'+esc(r["編號"]||"")+'　'+esc(r["負責"]||"未指派")+'　'+(r["期限"]?'期限 '+esc(r["期限"]):'未設定期限')+'　'+esc(r["狀態"]||"")+'</span></div>').join(""):'<div class="empty">目前沒有尚未完成的公文決議。</div>';
+  const p=$("editor-office-records");
+  if(!state.rec){ p.innerHTML=`<div class="empty">${esc(state.err.rec||"正在讀取公文與決議…")}</div>`; return; }
+  const work=state.rec.filter(isOpen).sort((a,b)=>(toDate(a["期限"])||9e15)-(toDate(b["期限"])||9e15)).slice(0,6);
+  p.innerHTML=work.length? work.map(r=>{const d=toDate(r["期限"]), over=d&&d<today;
+    return `<div class="office-record"><span class="office-record-title">${esc(r["主旨／決議內容"]||r["來源"]||"未命名工作")}</span><span class="office-record-meta">${esc(r["編號"])}・${esc(r["負責"]||"未指派")}・${d?`<span${over?' style="color:var(--bad)"':""}>期限 ${md(d)}${over?"（逾期）":""}</span>`:"未設定期限"}・${esc(r["狀態"])}</span></div>`;}).join("")
+    : `<div class="empty">目前沒有未完成的公文決議。</div>`;
 }
-function editorToast(message){$("editor-feedback").textContent=message;}
-function editorSetDraft(title,body,info){
- $("editor-topic").value=title||"";
- $("editor-copy-body").value=body||"";
- editorToast(info||"草稿已載入，請確認日期及文字後再發布。");
- $("editorial-desk").scrollIntoView({behavior:"smooth",block:"start"});
-}
-function editorFillAnnouncement(index){
- const r=state.ann&&state.ann[index];if(!r)return;
- editorSetDraft(r["標題"]||r["活動"],r["公告內容草稿"]||"","已帶入原排程草稿；尚未代表已核定或已發布。");
+const editorToast = m => { $("editor-feedback").textContent=m; };
+function editorSetDraft(title, body, info){
+  $("editor-topic").value=title||""; $("editor-copy-body").value=body||"";
+  editorToast(info||"草稿已載入，請確認日期及文字後再發布。");
+  $("editorial-desk").scrollIntoView({behavior:"smooth", block:"start"});
 }
 function editorBuildFromDate(){
- const d=LY_CAL.date;
- const events=lyItems(d).filter(e=>e.kind!=="task"&&e.kind!=="publish");
- const title=events.length?events[0].n:"宮務工作通知";
- const details=events.map(e=>"・"+e.n+(e.info?"（"+e.info+"）":"")).join("\n");
- const dat="民國"+(d.getFullYear()-1911)+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日";
- $("editor-type").value="LINE 群組通知";
- editorSetDraft(title,"【"+title+"｜公告草稿】\n\n日期："+dat+"\n"+(details?"工作／活動：\n"+details+"\n":"")+"時間：【待確認】\n集合地點：【待確認】\n注意事項：【待確認】\n\n中和玉勅龍延宮 敬邀","已帶入月曆日期及現有活動，請核對所有待確認資訊。");
+  const d=state.sel, l=lunarOf(d);
+  const evs=(state.items.map[iso(d)]||[]).filter(it=>!["task","pub"].includes(it.cat)&&!it.done);
+  const title=evs.length? evs[0].title : "宮務工作通知";
+  const details=evs.map(it=>`・${it.time?it.time+" ":""}${it.title}${it.conf&&it.conf!=="ok"?`（${CONF_LABEL[it.conf]}）`:""}`).join("\n");
+  const dat=`民國${d.getFullYear()-1911}年${d.getMonth()+1}月${d.getDate()}日（${DOW[d.getDay()]}）${l?`・農曆${l.month}${l.dayName}`:""}`;
+  $("editor-type").value="LINE 群組通知";
+  editorSetDraft(title, `【${title}｜公告草稿】\n\n日期：${dat}\n${details?`工作／活動：\n${details}\n`:""}時間：【待確認】\n集合地點：【待確認】\n注意事項：【待確認】\n\n中和玉勅龍延宮 敬邀`, "已帶入月曆日期及當天活動，請核對所有【待確認】資訊。");
 }
 function editorBuildBasic(){
- const type=$("editor-type").value;
- const subject=$("editor-topic").value.trim()||"宮務公告（請填主題）";
- const formal=type==="正式公告";
- const text=formal?"【"+subject+"】\n\n主旨："+subject+"\n\n說明：\n一、【請填活動日期、時間及地點】\n二、【請填辦理內容及注意事項】\n\n中和玉勅龍延宮 敬啟":"【"+subject+"｜"+type+"】\n\n各位師兄、師姐及善信大德平安：\n\n"+subject+"，相關安排如下：\n日期：【待確認】\n時間：【待確認】\n地點：【待確認】\n工作內容：【待確認】\n注意事項：【待確認】\n\n敬請大家踴躍參與，感謝支持與協助。\n\n中和玉勅龍延宮 敬邀";
- $("editor-copy-body").value=text;editorToast("已建立格式草稿；【待確認】欄位請補充正確資訊。");
+  const type=$("editor-type").value, subject=$("editor-topic").value.trim()||"宮務公告（請填主題）";
+  $("editor-copy-body").value = type==="正式公告"
+    ? `【${subject}】\n\n主旨：${subject}\n\n說明：\n一、【請填活動日期、時間及地點】\n二、【請填辦理內容及注意事項】\n\n中和玉勅龍延宮 敬啟`
+    : `【${subject}｜${type}】\n\n各位師兄、師姐及善信大德平安：\n\n${subject}，相關安排如下：\n日期：【待確認】\n時間：【待確認】\n地點：【待確認】\n工作內容：【待確認】\n注意事項：【待確認】\n\n敬請大家踴躍參與，感謝支持與協助。\n\n中和玉勅龍延宮 敬邀`;
+  editorToast("已建立格式草稿；【待確認】欄位請補上正確資訊。");
 }
 async function editorCopy(text){
- if(!text||!text.trim()){editorToast("目前沒有可複製的內容。");return;}
- try{
-  if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);}
-  else{const t=document.createElement("textarea");t.value=text;t.style.position="fixed";t.style.opacity="0";document.body.appendChild(t);t.select();if(!document.execCommand("copy"))throw Error("copy failed");t.remove();}
-  editorToast("已複製到剪貼簿，可貼至 LINE 或 ChatGPT。");
- }catch(e){editorToast("複製未成功，請手動選取草稿後複製。");}
+  if(!text||!text.trim()){ editorToast("目前沒有可複製的內容。"); return; }
+  try{
+    if(navigator.clipboard&&window.isSecureContext) await navigator.clipboard.writeText(text);
+    else { const t=document.createElement("textarea"); t.value=text; t.style.position="fixed"; t.style.opacity="0"; document.body.appendChild(t); t.select(); const ok=document.execCommand("copy"); t.remove(); if(!ok) throw Error("copy failed"); }
+    editorToast("已複製到剪貼簿，可貼到 LINE 或 ChatGPT。");
+  }catch(_){ editorToast("複製沒有成功，請手動選取草稿後複製。"); }
 }
 document.addEventListener("click",e=>{
- const a=e.target.closest("[data-editor-ann]");if(a){editorFillAnnouncement(Number(a.dataset.editorAnn));return;}
- const tab=e.target.closest("[data-to-tab]");if(tab){const target=$("tab-"+tab.dataset.toTab);if(target){target.click();$("records-library").scrollIntoView({behavior:"smooth",block:"start"});}return;}
+  const a=e.target.closest("[data-editor-ann]");
+  if(a){ const r=state.ann&&state.ann[+a.dataset.editorAnn]; if(r) editorSetDraft(r["標題"]||r["活動"], r["公告內容草稿"]||"", "已帶入原排程草稿；不代表已核定或已發布。"); return; }
+  if(e.target.closest("#editor-from-selected")) editorBuildFromDate();
 });
-$("editor-from-selected").addEventListener("click",editorBuildFromDate);
 $("editor-create").addEventListener("click",editorBuildBasic);
 $("editor-copy").addEventListener("click",()=>editorCopy($("editor-copy-body").value));
 $("editor-ai-copy").addEventListener("click",()=>{
- const draft=$("editor-copy-body").value.trim(),type=$("editor-type").value;
- if(!draft){editorToast("請先建立或帶入草稿。");return;}
- editorCopy("請協助我以「中和玉勅龍延宮」文書組／小編的身分，將以下草稿改寫成「"+type+"」。風格正式、親切、清楚，尊重宗教文化，適合臺灣繁體中文。請保留原有事實及日期；未確認的時間、費用或人員不要自行編造，請標註待確認。請產出可直接審閱的版本。\n\n【原始草稿】\n"+draft);
+  const draft=$("editor-copy-body").value.trim(), type=$("editor-type").value;
+  if(!draft){ editorToast("請先建立或帶入草稿。"); return; }
+  editorCopy(`請協助我以「中和玉勅龍延宮」文書組／小編的身分，將以下草稿改寫成「${type}」。風格正式、親切、清楚，尊重宗教文化，適合臺灣繁體中文。請保留原有事實及日期；未確認的時間、費用或人員不要自行編造，請標註待確認。請產出可直接審閱的版本。\n\n【原始草稿】\n${draft}`);
 });
-document.querySelectorAll(".editor-nav a").forEach(a=>a.addEventListener("click",()=>{
- document.querySelectorAll(".editor-nav a").forEach(v=>v.classList.toggle("is-active",v===a));
-}));
 
 function renderGH(){
   const el=$("gh"), g=state.gh;
@@ -823,16 +713,257 @@ function renderGH(){
       <div class="links"><a class="btn" target="_blank" rel="noopener" href="${esc(g.repo)}/blob/main/docs/%E5%B9%B3%E5%8F%B0%E7%B8%BD%E8%A6%BD.md">完整總覽</a><a class="btn" target="_blank" rel="noopener" href="${esc(g.repo)}/issues">待辦卡</a><a class="btn" target="_blank" rel="noopener" href="${esc(g.repo)}/blob/main/docs/%E8%A6%8F%E5%8A%83/%E5%B9%B3%E5%8F%B0%E8%A6%8F%E5%8A%83.md">規劃書</a></div></div>`;
 }
 function renderStrip2(){ if(state.dec) $("s-dec").textContent=state.dec.filter(decOpen).length; }
-function renderAll(){ renderLYCalendar(); renderGH(); renderAnnSoon(); renderSummary(); renderEvents(); renderCases(); renderUpcoming(); renderAttention(); renderPanel(); renderFoot(); editorPreview(); }
+function renderAll(){ state.items=buildItems(); renderGH(); renderAnnSoon(); renderSummary(); renderEvents(); renderCases(); renderAttention(); renderPanel(); renderFoot(); renderCal(); editorPreview(); }
 function renderFoot(){
   if(!builtAt) return;
   const t=new Date(builtAt);
   $("foot").textContent=`資料來源：雲端硬碟「龍延宮工作平台」的六份試算表，${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,"0")}:${String(t.getMinutes()).padStart(2,"0")} 匯入（每 30 分鐘自動更新）。修改請在試算表中進行。`;
 }
 
-for(const k of ["todo","cal","mtg","doc","ev","lunar","ann","flow","rec"]) $("tab-"+k).addEventListener("click",()=>{state.tab=k;state.filter=FILTERS[k][0];renderPanel();});
+for(const k of TABS) $("tab-"+k).addEventListener("click",()=>{state.tab=k;state.filter=(FILTERS[k]||[""])[0];renderPanel();});
 $("filters").addEventListener("change",e=>{ if(e.target.id==="who"){ state.who=e.target.value; const u=new URL(location.href); state.who?u.searchParams.set("who",state.who):u.searchParams.delete("who"); history.replaceState(null,"",u); renderPanel(); }});
 $("filters").addEventListener("click",e=>{const b=e.target.closest("button[data-f]"); if(b){state.filter=b.dataset.f;renderPanel();}});
+
+
+// ================= 版面 2.0：大型月曆 =================
+// 農曆換算表：每個農曆月初一的國曆日期（YYYYMMDD）＋月份（2 碼）＋是否閏月（1 碼）。
+// 以 python lunardate 產生，涵蓋 2024/02 ～ 2031 年底；超出範圍的日期不顯示農曆。
+const LUNAR_TABLE="20240210010,20240310020,20240409030,20240508040,20240606050,20240706060,20240804070,20240903080,20241003090,20241101100,20241201110,20241231120,20250129010,20250228020,20250329030,20250428040,20250527050,20250625060,20250725061,20250823070,20250922080,20251021090,20251120100,20251220110,20260119120,20260217010,20260319020,20260417030,20260517040,20260615050,20260714060,20260813070,20260911080,20261010090,20261109100,20261209110,20270108120,20270206010,20270308020,20270407030,20270506040,20270605050,20270704060,20270802070,20270901080,20270930090,20271029100,20271128110,20271228120,20280126010,20280225020,20280326030,20280425040,20280524050,20280623051,20280722060,20280820070,20280919080,20281018090,20281116100,20281216110,20290115120,20290213010,20290315020,20290414030,20290513040,20290612050,20290711060,20290810070,20290908080,20291008090,20291106100,20291205110,20300104120,20300203010,20300304020,20300403030,20300502040,20300601050,20300701060,20300730070,20300829080,20300927090,20301027100,20301125110,20301225120,20310123010,20310221020,20310323030,20310422031,20310521040,20310620050,20310719060,20310818070,20310917080,20311016090,20311115100,20311214110";
+const LMONTHS=["正","二","三","四","五","六","七","八","九","十","冬","臘"];
+const LDAYS=["初一","初二","初三","初四","初五","初六","初七","初八","初九","初十","十一","十二","十三","十四","十五","十六","十七","十八","十九","二十","廿一","廿二","廿三","廿四","廿五","廿六","廿七","廿八","廿九","三十"];
+const GAN="甲乙丙丁戊己庚辛壬癸", ZHI="子丑寅卯辰巳午未申酉戌亥";
+const LSTARTS=LUNAR_TABLE.split(",").map(x=>{const d=new Date(+x.slice(0,4),+x.slice(4,6)-1,+x.slice(6,8)), m=+x.slice(8,10);
+  return {d, m, leap:x[10]==="1", y:(m>=11&&d.getMonth()<=1)? d.getFullYear()-1 : d.getFullYear()};});
+function lunarOf(d){
+  if(!d || d<LSTARTS[0].d) return null;
+  let lo=0, hi=LSTARTS.length-1;
+  while(lo<hi){ const mid=(lo+hi+1)>>1; if(LSTARTS[mid].d<=d) lo=mid; else hi=mid-1; }
+  const s=LSTARTS[lo], day=Math.round((d-s.d)/86400000)+1;
+  if(lo===LSTARTS.length-1 && day>30) return null;
+  return {y:s.y, m:s.m, leap:s.leap, day, gz:GAN[(s.y-4)%10]+ZHI[(s.y-4)%12],
+    month:(s.leap?"閏":"")+LMONTHS[s.m-1]+"月", dayName:LDAYS[day-1]};
+}
+const lunarText = d => { const l=lunarOf(d); return l? `${l.month}${l.dayName}` : ""; };
+{ const l=lunarOf(today);
+  $("today").textContent = `今天 民國 ${today.getFullYear()-1911} 年 ${today.getMonth()+1} 月 ${today.getDate()} 日（${DOW[today.getDay()]}）`+(l?`・農曆${l.gz}年${l.month}${l.dayName}`:""); }
+
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const addDays = (d,n) => new Date(d.getFullYear(), d.getMonth(), d.getDate()+n);
+const CATS = {big:"大型法會・活動", rite:"祭典・例行祭祀", adm:"會議・行政", task:"準備工作・待辦", pub:"公告排程"};
+const CAT_ORDER = {big:0, rite:1, adm:2, task:3, pub:4};
+// 日期可信度：把各試算表的寫法歸成四種
+function confOf(s){
+  s=String(s||"");
+  if(/待擲|擲杯|擲筊|待請示|待會議/.test(s)) return "tbd";
+  if(/已決議|已公告|已確認|會議已決議|固定農曆/.test(s)) return "ok";
+  if(/待定|暫訂|建議期限/.test(s)) return "temp";
+  if(/推估/.test(s)) return "est";
+  return "";
+}
+const CONF_LABEL = {ok:"已確認", temp:"暫訂", est:"推估", tbd:"待擲筊"};
+const CONF_PILL = {ok:"p-ok", temp:"p-gold", est:"p-mute", tbd:"p-warn"};
+const confRank = c => ({ok:0,temp:1,tbd:2,est:3}[c] ?? 9);
+const grams = s => { s=String(s||"").replace(/[^一-鿿]/g,""); const g=new Set(); for(let i=0;i<s.length-1;i++) g.add(s.slice(i,i+2)); return g; };
+const overlap = (a,b) => { const A=grams(a), B=grams(b); let n=0; for(const x of A) if(B.has(x)) n++; return n; };
+const WRAP_RX = /結算|紀錄|捐贈|檢討|拆|收尾|歸位|盤點|對帳/;
+
+// 把所有試算表整理成月曆上的項目（每次重畫時重建，資料量很小）
+function buildItems(){
+  const out=[], conflicts={};
+  const evByCode={};
+  for(const r of state.ev||[]) if(r["活動代碼"]) (evByCode[r["活動代碼"]] ||= []).push(r);
+  // 05 大型活動期程表：活動日與前後的主要日子算「大型法會」，其餘階段算「準備工作」
+  for(const [code,rs] of Object.entries(evByCode)){
+    const name=rs[0]["大型活動"], d0=toDate(rs[0]["活動日"]), short=code.split("-").slice(1).join("-");
+    for(const r of rs){
+      const d=evDate(r); if(!d) continue;
+      const off=d0? Math.round((d-d0)/86400000) : null;
+      const isDay=d0 && (off===0 || (off>0 && off<=14 && !WRAP_RX.test(r["工作內容"])));
+      out.push({d, title: isDay? r["工作內容"] : `${short}・${r["工作內容"]}`, group:name, cat:isDay?"big":"task", kind:isDay?"event":"step",
+        conf:"", src:"05 大型活動期程表", who:r["負責"], status:r["狀態"], over:evOver(r), done:isDone(r["狀態"]), code, note:r["備註"], basis:r["依據"], rank:0});
+    }
+  }
+  // 06 農曆祭典推估
+  for(const r of state.lunar||[]){
+    const d=toDate(r["國曆日期"]); if(!d) continue; const c=r["類別"];
+    out.push({d, title:r["項目"]||r["活動"], group:r["活動"], cat:/法會|進香/.test(c)?"big":c==="準備工作"?"task":c==="行政"?"adm":"rite", kind:"lunar",
+      conf:confOf(r["可信度"]), confRaw:r["可信度"], time:r["時間"], src:"06 農曆祭典推估", note:r["說明／工作內容"], basis:r["依據（LINE 對話中的實際日期）"], rank:2});
+  }
+  // 03 年度行事曆：與 05 同代碼、同名但日期不同的，以 05 為準並在活動詳情提醒
+  for(const e of state.cal||[]){
+    const d=toDate(e["國曆日期"]); if(!d) continue;
+    const code=e["活動代碼"], evs=evByCode[code];
+    if(evs && !evs.some(r=>+evDate(r)===+d) && evs.some(r=>overlap(e["活動"], r["工作內容"])>=2 || overlap(e["活動"], r["大型活動"])>=2)){
+      (conflicts[code] ||= []).push(`03 年度行事曆寫 ${md(d)}「${e["活動"]}」，與 05 大型活動期程表不同，請更新 03。`); continue;
+    }
+    out.push({d, title:e["活動"], group:e["主辦"], cat:e["類別"]==="祭典"?(evs?"big":"rite"):"adm", kind:"cal", conf:confOf(e["日期狀態"]), confRaw:e["日期狀態"],
+      src:"03 年度行事曆", note:e["依據與備註"], code:evs?code:"", rank:1});
+    const p=toDate(e["建議開始籌備"]);
+    if(p && !evs) out.push({d:p, title:`開始籌備：${e["活動"]}`, group:`活動日 ${md(d)}`, cat:"task", kind:"prep", conf:"", src:"03 年度行事曆", rank:1, done:d<today});
+  }
+  // 同一天、名稱相近的祭典（05／03／06 重複列的）合併成一筆，保留最可靠的日期狀態
+  const merged=[]; const byDay={};
+  for(const it of out.sort((a,b)=>a.rank-b.rank)){
+    const k=iso(it.d), same=(byDay[k] ||= []);
+    const dup=same.find(x=>x.src!==it.src && (x.kind!=="step" && it.kind!=="step" ? overlap(x.title,it.title)>=2 : (x.code&&x.code===it.code&&overlap(x.title,it.title)>=2)));
+    if(dup && dup.src!==it.src && !(it.kind==="prep"||dup.kind==="prep")){
+      if(it.conf && (!dup.conf || confRank(it.conf)<confRank(dup.conf))){ dup.conf=it.conf; dup.confRaw=it.confRaw; }
+      dup.time ||= it.time; dup.also=(dup.also||[]).concat(it.src); if(!dup.note && it.note) dup.note=it.note;
+      continue;
+    }
+    same.push(it); merged.push(it);
+  }
+  // 06 的法會第二、三天與準備工作，連到 05 的活動，點選時可看到籌備進度
+  const evList=Object.entries(evByCode).map(([code,rs])=>({code, name:rs[0]["大型活動"], d0:toDate(rs[0]["活動日"])})).filter(e=>e.d0);
+  for(const it of merged){
+    if(it.code || it.kind!=="lunar" || (it.cat!=="big"&&it.cat!=="task")) continue;
+    const ev=evList.find(e=>overlap(it.group,e.name)>=2 && (it.cat==="big"? (it.d>=e.d0 && days(it.d)-days(e.d0)<=7) : (it.d<=e.d0 && days(e.d0)-days(it.d)<=30)));
+    if(ev) it.code=ev.code;
+  }
+  for(const it of merged) if(it.kind==="event" && !it.conf) it.conf="temp";
+  // 截止日：02 待辦、04 申辦、09 公文決議
+  for(const t of state.todo||[]){
+    const d=toDate(t["期限"]); if(!d || t["狀態"]==="備忘") continue;
+    merged.push({d, title:`${t["編號"]} ${t["待辦事項"]}`, group:t["活動代碼"], cat:"task", kind:"due", who:t["負責"], status:t["狀態"], pri:t["優先"],
+      over:isOver(t), done:!isOpen(t), src:"02 待辦追蹤表", note:t["備註"]});
+  }
+  for(const r of state.doc||[]){
+    const d=toDate(r["到期日"]); if(!d || !(isOpen(r) || r["編別/項目"]==="法定期限")) continue;
+    merged.push({d, title:`${r["編別/項目"]}：${r["內容大綱"]}`, group:r["案件"], cat:"adm", kind:"due", who:r["負責"], status:r["狀態"], over:dOver(r), done:!isOpen(r), src:"04 申辦文書進度表", note:r["依據"]});
+  }
+  for(const r of state.rec||[]){
+    const d=toDate(r["期限"]); if(!d || !isOpen(r)) continue;
+    merged.push({d, title:`${r["編號"]} ${r["主旨／決議內容"]}`, group:r["類型"], cat:"adm", kind:"due", who:r["負責"], status:r["狀態"], over:d<today, done:false, src:"09 公文與決議追蹤表", note:r["對應待辦"]});
+  }
+  for(const m of state.mtg||[]){
+    const d=toDate(m["西元日期"])||toDate(m["民國日期"]); if(!d) continue;
+    merged.push({d, title:m["會議名稱"], group:m["會議類型"], cat:"adm", kind:"mtg", conf:"ok", src:"01 會議記錄總表", note:m["主要決議"], status:m["正式紀錄"]==="有"?"":"缺正式紀錄"});
+  }
+  // 07 公告排程（預設隱藏，點「公告排程」分類才顯示）
+  (state.ann||[]).forEach((a,i)=>{ const d=toDate(a["發布日期"]); if(!d) return;
+    merged.push({d, title:a["標題"]||a["活動"], group:a["公告類型"], cat:"pub", kind:"ann", time:a["發布時間"], src:"07 公告排程", annIdx:i}); });
+  const map={};
+  for(const it of merged){ it.key=iso(it.d); (map[it.key] ||= []).push(it); }
+  for(const k in map) map[k].sort((a,b)=>(a.done-b.done) || (CAT_ORDER[a.cat]-CAT_ORDER[b.cat]) || ((b.over?1:0)-(a.over?1:0)) || String(a.time||"99").padStart(5,"0").localeCompare(String(b.time||"99").padStart(5,"0")));
+  return {map, conflicts};
+}
+
+const LS = { get(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch(_){} } };
+const mqPhone = matchMedia("(max-width:640px)");
+Object.assign(state, {view: ["month","week","list"].includes(LS.get("lyd-view"))? LS.get("lyd-view") : "month", cursor: today, sel: today, cats: new Set(["big","rite","adm","task"]), items: {map:{}, conflicts:{}}});
+const shown = arr => (arr||[]).filter(it=>state.cats.has(it.cat));
+const visibleCount = arr => (arr||[]).filter(it=>it.cat!=="pub").length;
+const chipCls = it => `chip cat-${it.cat}${it.over&&!it.done?" over":""}${it.done?" done":""}${it.conf&&!it.over?" cf-"+it.conf:""}`;
+const chipTip = it => [it.time, it.title, it.conf?CONF_LABEL[it.conf]:"", it.over&&!it.done?"逾期":""].filter(Boolean).join("・");
+function lunarCell(d){
+  const l=lunarOf(d); if(!l) return `<span class="ln"></span>`;
+  if(l.day===1) return `<span class="ln l1">${l.month}</span>`;
+  return `<span class="ln${l.day===15?" l15":""}">${l.dayName}</span>`;
+}
+function renderCats(){
+  $("cats").innerHTML=Object.entries(CATS).map(([k,v])=>`<button type="button" class="cat-${k}" data-cat="${k}" aria-pressed="${state.cats.has(k)}"><i></i>${v}</button>`).join("");
+}
+function renderCal(){
+  const loading=!state.cal&&!state.lunar&&!state.ev&&!state.todo;
+  document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.view===state.view)));
+  const c=state.cursor, el=$("calview"), map=state.items.map;
+  $("cal-today").textContent = state.view==="week"? "本週" : "本月";
+  if(state.view==="week"){
+    const s=addDays(c,-c.getDay()), e=addDays(s,6);
+    $("cal-title").textContent=`${s.getFullYear()-1911}年 ${md(s)}–${md(e)}`;
+    const ls=lunarOf(s), le=lunarOf(e);
+    $("cal-sub").textContent= ls&&le? `農曆 ${ls.month}${ls.dayName} – ${le.month}${le.dayName}` : "";
+    el.innerHTML=`<div class="wgrid">`+[0,1,2,3,4,5,6].map(i=>{
+      const d=addDays(s,i), k=iso(d), its=shown(map[k]);
+      return `<div class="wday${+d===+state.sel?" sel":""}${d.getDay()%6===0?" we":""}${+d===+today?" today":""}" data-d="${k}" role="button" tabindex="0" aria-label="${md(d)} 週${DOW[d.getDay()]} ${lunarText(d)}，${its.length} 項">
+        <div class="top"><span><span class="dn">${d.getDate()}</span> <span class="meta">週${DOW[d.getDay()]}</span></span>${lunarCell(d)}</div>
+        <div class="items">${its.map(it=>`<span class="${chipCls(it)}" title="${esc(chipTip(it))}">${it.time?`<span class="t">${esc(it.time)}</span>`:""}${esc(it.title)}</span>`).join("")||`<span class="meta">—</span>`}</div></div>`;
+    }).join("")+`</div>`;
+  } else {
+    const first=new Date(c.getFullYear(), c.getMonth(), 1), last=new Date(c.getFullYear(), c.getMonth()+1, 0);
+    $("cal-title").textContent=`${c.getFullYear()-1911}年 ${c.getMonth()+1}月`;
+    const lf=lunarOf(first), ll=lunarOf(last);
+    $("cal-sub").textContent= lf&&ll? `${c.getFullYear()}・農曆${lf.gz}年 ${lf.month}${lf.month!==ll.month?`至${ll.gz!==lf.gz?ll.gz+"年 ":""}${ll.month}`:""}` : String(c.getFullYear());
+    if(state.view==="list"){
+      const rows=[]; for(let d=first; d<=last; d=addDays(d,1)){ const its=shown(map[iso(d)]); if(its.length) rows.push([d,its]); }
+      el.innerHTML = rows.length? `<div class="agenda">`+rows.map(([d,its])=>`<div class="aday${+d===+state.sel?" sel":""}" data-d="${iso(d)}" role="button" tabindex="0">
+        <div class="date">${md(d)}${+d===+today?` <span class="pill p-red">今天</span>`:""}<span class="dow">週${DOW[d.getDay()]}・${lunarText(d)}</span></div>
+        <div>${its.map(it=>`<span class="${chipCls(it)}">${it.time?`<span class="meta">${esc(it.time)}</span> `:""}${esc(it.title)}${it.conf?` <span class="meta">・${CONF_LABEL[it.conf]}</span>`:""}</span>`).join("")}</div></div>`).join("")+`</div>`
+        : `<div class="empty">${loading?"正在讀取行事資料…":"這個月沒有排定的行事。"}</div>`;
+    } else {
+      const start=addDays(first,-first.getDay()), weeks=Math.ceil((first.getDay()+last.getDate())/7), max=mqPhone.matches?2:4;
+      let html=`<div class="mgrid" role="grid">`+DOW.map((w,i)=>`<div class="dh${i%6===0?" we":""}" role="columnheader">${w}</div>`).join("");
+      for(let i=0;i<weeks*7;i++){
+        const d=addDays(start,i), k=iso(d), its=shown(map[k]);
+        const cls=["cell", d.getMonth()!==c.getMonth()?"out":"", d.getDay()%6===0?"we":"", +d===+today?"today":"", +d===+state.sel?"sel":""].filter(Boolean).join(" ");
+        html+=`<button type="button" class="${cls}" data-d="${k}" aria-label="${d.getMonth()+1}月${d.getDate()}日 週${DOW[d.getDay()]} 農曆${lunarText(d)}，${its.length} 項" aria-pressed="${+d===+state.sel}">
+          <span class="top"><span class="dn">${d.getDate()}</span>${lunarCell(d)}</span>
+          ${its.slice(0,max).map(it=>`<span class="${chipCls(it)}" title="${esc(chipTip(it))}">${esc(it.title)}</span>`).join("")}
+          ${its.length>max?`<span class="more">+${its.length-max} 項</span>`:""}</button>`;
+      }
+      el.innerHTML=html+`</div>`;
+    }
+  }
+  renderDay();
+}
+function evBlock(code){
+  const rs=(state.ev||[]).filter(r=>r["活動代碼"]===code); if(!rs.length) return "";
+  const done=rs.filter(r=>isDone(r["狀態"])).length, n=rs.length, d0=toDate(rs[0]["活動日"]);
+  const nexts=rs.filter(r=>isOpen(r)&&evDate(r)).sort((a,b)=>evDate(a)-evDate(b)).slice(0,4);
+  const notes=state.items.conflicts[code]||[];
+  return `<div class="evprog"><div><b>${esc(rs[0]["大型活動"])}</b> <span class="meta">${d0?`活動日 ${roc(d0)}（週${DOW[d0.getDay()]}）${days(d0)>=0?`・${days(d0)} 天後`:""}`:""}</span></div>
+    <div class="bar" role="img" aria-label="籌備階段完成 ${done}/${n}"><i style="width:${Math.round(done/n*100)}%"></i></div>
+    <div class="meta">籌備階段 ${done}/${n} 完成${rs.filter(evOver).length?`・<span style="color:var(--bad)">已過預估日 ${rs.filter(evOver).length} 項</span>`:""}</div>
+    ${nexts.length?`<ol>${nexts.map(r=>{const d=evDate(r);return `<li>${esc(r["工作內容"])} <span class="meta">${md(d)}${evOver(r)?`・<span style="color:var(--bad)">已過</span>`:days(d)>=0?`・${days(d)} 天後`:""}・${esc(r["狀態"])}</span></li>`;}).join("")}</ol>`:`<div class="meta">各階段都已完成</div>`}
+    ${notes.map(t=>`<div class="warnline">${esc(t)}</div>`).join("")}
+    <div><button class="btn" type="button" data-goev="${esc(code)}">看完整籌備期程</button></div></div>`;
+}
+function renderDay(){
+  const d=state.sel, k=iso(d), its=shown(state.items.map[k]).filter(it=>it.kind!=="ann"), l=lunarOf(d);
+  const n=days(d), rel=n===0?"今天":n===1?"明天":n===-1?"昨天":n>0?`${n} 天後`:`${-n} 天前`;
+  const anns=(state.ann||[]).map((a,i)=>({a,i,d:toDate(a["發布日期"])})).filter(x=>x.d&&+x.d===+d);
+  const codes=[...new Set(its.map(it=>it.code).filter(Boolean))];
+  const hidden=visibleCount(state.items.map[k])-its.filter(it=>it.cat!=="pub").length;
+  $("day").innerHTML=`<div class="dayhead"><b>${d.getMonth()+1}月${d.getDate()}日（${DOW[d.getDay()]}）</b><span class="meta">${l?`農曆${l.month}${l.dayName}・`:""}${rel}</span></div>`+
+    (its.length? its.map(it=>`<div class="ditem cat-${it.cat}${it.over&&!it.done?" over":""}">
+      <div class="ttl"${it.done?' style="text-decoration:line-through;opacity:.65"':""}>${it.time?`<span class="t">${esc(it.time)}</span>`:""}${esc(it.title)}</div>
+      <div class="meta">${[CATS[it.cat], it.group, it.who?`負責 ${it.who}`:""].filter(Boolean).map(esc).join("・")}</div>
+      <div class="pills">${it.conf?`<span class="pill ${CONF_PILL[it.conf]}" title="${esc(it.confRaw||"")}">${CONF_LABEL[it.conf]}</span>`:""}${it.pri?priPill({"優先":it.pri}):""}${it.status||it.over?statusPill(it.status,it.over&&!it.done):""}<span class="pill p-mute">${esc(it.src)}${it.also?`＋${it.also.length}`:""}</span></div>
+      ${it.note?`<div class="meta">${esc(it.note)}</div>`:""}</div>`).join("")
+    : `<div class="empty" style="padding:6px 0">${hidden?`這天有 ${hidden} 項被分類篩選隱藏。`:"這天沒有排定的行事。"}</div>`)+
+    codes.map(evBlock).join("")+
+    `<div><button class="btn primary" type="button" id="editor-from-selected">用這個日期撰寫公告 →</button></div>`+
+    (anns.length?`<div class="meta" style="margin-top:4px"><b>這天要發的公告</b></div>`+anns.map(({a,i})=>`<div class="ditem cat-adm"><div class="ttl"><span class="t">${esc(a["發布時間"])}</span>${esc(a["標題"])}</div><details><summary class="meta">看內容</summary><pre class="draft">${esc(a["公告內容草稿"])}</pre></details><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn" type="button" data-editor-ann="${i}">帶入草稿</button><button class="btn" type="button" data-copy="${i}">複製內容</button></div></div>`).join(""):"");
+}
+function moveCal(step){
+  const c=state.cursor;
+  state.cursor = state.view==="week"? addDays(c, 7*step) : new Date(c.getFullYear(), c.getMonth()+step, 1);
+  if(state.view==="week") state.sel=addDays(state.sel, 7*step);
+  else if(state.sel.getMonth()!==state.cursor.getMonth()||state.sel.getFullYear()!==state.cursor.getFullYear())
+    state.sel = (state.cursor.getMonth()===today.getMonth()&&state.cursor.getFullYear()===today.getFullYear())? today : state.cursor;
+  renderCal();
+}
+$("cal-prev").addEventListener("click",()=>moveCal(-1));
+$("cal-next").addEventListener("click",()=>moveCal(1));
+$("cal-today").addEventListener("click",()=>{ state.cursor=today; state.sel=today; renderCal(); });
+document.querySelector(".seg").addEventListener("click",e=>{ const b=e.target.closest("button[data-view]"); if(!b) return; state.view=b.dataset.view; LS.set("lyd-view",state.view); state.cursor=state.sel; renderCal(); });
+$("cats").addEventListener("click",e=>{ const b=e.target.closest("button[data-cat]"); if(!b) return; const k=b.dataset.cat; state.cats.has(k)? state.cats.delete(k) : state.cats.add(k); if(!state.cats.size) state.cats=new Set(Object.keys(CATS)); renderCats(); renderCal(); });
+function pickDay(t){
+  const x=t.closest("[data-d]"); if(!x) return;
+  const [y,m,d]=x.dataset.d.split("-").map(Number); state.sel=new Date(y,m-1,d);
+  if(state.view==="month" && state.sel.getMonth()!==state.cursor.getMonth()) state.cursor=new Date(y,m-1,1);
+  renderCal();
+  if(mqPhone.matches) $("day").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+$("calview").addEventListener("click",e=>pickDay(e.target));
+$("calview").addEventListener("keydown",e=>{ if((e.key==="Enter"||e.key===" ") && e.target.matches("[role=button][data-d]")){ e.preventDefault(); pickDay(e.target); } });
+mqPhone.addEventListener?.("change",()=>renderCal());
+document.addEventListener("click",e=>{
+  const g=e.target.closest("[data-goev],[data-gotab]");
+  if(g){ state.tab=g.dataset.goev?"ev":g.dataset.gotab; state.filter=g.dataset.goev||(FILTERS[state.tab]||[""])[0]; renderPanel(); $("work").scrollIntoView({behavior:"smooth"}); }
+  const menu=$("menu"); if(menu.open && !menu.contains(e.target)) menu.open=false;
+});
+renderCats();
 
 // 資料來源：GitHub Actions 每 30 分鐘從 Google 試算表匯出 CSV，放在 data/ 底下一起發布。
 const KEYS = Object.keys(FILES);
