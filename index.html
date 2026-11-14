@@ -93,6 +93,41 @@ details summary{cursor:pointer}
 .mini i{display:block;height:100%;background:var(--gold)}
 @media (max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}.strip{grid-template-columns:repeat(2,minmax(0,1fr))}.row{grid-template-columns:72px minmax(0,1fr)}.row .right{grid-column:2}}
 @media (prefers-reduced-motion:no-preference){.list,.tablebox{transition:opacity .2s}}
+
+/* 宮務大月曆 2.0 */
+.ly-cal-layout{display:grid;grid-template-columns:minmax(0,7fr) minmax(270px,3fr);gap:14px;align-items:start}
+.ly-cal-main,.ly-cal-side{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.ly-cal-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:14px;border-bottom:1px solid var(--line)}
+.ly-cal-toolbar strong{font:700 1.25rem var(--display)}
+.ly-cal-controls{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.ly-cal-controls button{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:7px;font:inherit;padding:5px 10px;cursor:pointer}
+.ly-cal-controls button[aria-pressed="true"]{background:var(--cinnabar-soft);color:var(--cinnabar);border-color:var(--cinnabar)}
+.ly-cal-legend{display:flex;gap:13px;flex-wrap:wrap;padding:9px 14px;font-size:.8rem;color:var(--muted)}
+.ly-cal-dot{display:inline-block;width:8px;height:8px;border-radius:100%;margin-right:4px;vertical-align:middle;background:var(--gold)}
+.ly-cal-dot.ritual{background:#A6261D}.ly-cal-dot.event{background:#A47721}.ly-cal-dot.admin{background:#46739B}.ly-cal-dot.task{background:#B65A22}
+.ly-cal-weekdays,.ly-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.ly-cal-weekdays>div{text-align:center;background:var(--bg);font-size:.8rem;color:var(--muted);padding:8px}
+.ly-cal-day{min-width:0;min-height:112px;display:flex;flex-direction:column;align-items:stretch;gap:4px;border:0;border-top:1px solid var(--line);border-right:1px solid var(--line);padding:6px;background:var(--surface);color:var(--fg);font:inherit;text-align:left;cursor:pointer}
+.ly-cal-day:nth-child(7n){border-right:0}
+.ly-cal-day:hover{background:var(--bg)}
+.ly-cal-day.outside{opacity:.4}.ly-cal-day.selected{outline:2px solid var(--cinnabar);outline-offset:-2px;background:var(--cinnabar-soft)}
+.ly-cal-day.today .ly-cal-n{background:var(--cinnabar);color:white;border-radius:99px;padding:0 6px}
+.ly-cal-dates{display:flex;justify-content:space-between;align-items:center;gap:3px}
+.ly-cal-n{font-size:.9rem;font-weight:700}.ly-cal-lunar{font-size:.68rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ly-cal-event{border-radius:4px;padding:3px 4px;font-size:.72rem;line-height:1.3;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.ly-cal-event.ritual{background:var(--cinnabar-soft);color:var(--cinnabar)}.ly-cal-event.event{background:var(--gold-soft);color:var(--gold)}
+.ly-cal-event.admin{background:#e5edf7;color:#335c81}.ly-cal-event.task{background:var(--warn-soft);color:var(--warn)}
+.ly-cal-more{font-size:.7rem;color:var(--muted)}.ly-cal-side-head{padding:14px;border-bottom:1px solid var(--line)}
+.ly-cal-side-body{padding:14px;display:grid;gap:12px;max-height:650px;overflow:auto}
+.ly-cal-detail{display:grid;gap:5px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.ly-cal-detail strong{font-size:.9rem}.ly-cal-detail small{font-size:.78rem;color:var(--muted)}
+.ly-cal-list{display:grid;gap:8px;padding:12px}
+.ly-cal-list button{display:flex;gap:10px;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--surface);color:var(--fg);font:inherit;text-align:left;cursor:pointer}
+.ly-cal-note{padding:10px 14px;font-size:.78rem;color:var(--muted);border-top:1px solid var(--line)}
+.ly-cal-indicators{display:none}
+@media(max-width:950px){.ly-cal-layout{grid-template-columns:1fr}.ly-cal-side-body{max-height:none}}
+@media(max-width:600px){.ly-cal-day{min-height:73px;padding:4px 2px}.ly-cal-day .ly-cal-event,.ly-cal-more{display:none}.ly-cal-n{font-size:.82rem}.ly-cal-lunar{font-size:.6rem}.ly-cal-indicators{display:flex;gap:3px;flex-wrap:wrap}.ly-cal-indicators .ly-cal-dot{width:6px;height:6px;margin:0}.ly-cal-toolbar{padding:10px}.ly-cal-toolbar strong{font-size:1.05rem}}
+
 </style>
 <style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -126,6 +161,20 @@ details summary{cursor:pointer}
     <div class="stat"><span class="k">未來 30 天行事</span><span class="v" id="s-30">–</span></div>
   </div>
 
+
+<section id="ly-calendar-section" aria-label="宮務大型月曆">
+<h2>宮務行事大月曆 <small>國曆・農曆・待辦提醒</small></h2>
+<div class="ly-cal-layout">
+<div class="ly-cal-main">
+<div class="ly-cal-toolbar"><strong id="ly-cal-title">正在讀取月曆…</strong>
+<div class="ly-cal-controls"><button type="button" id="ly-cal-prev" aria-label="上一個月">‹</button><button type="button" id="ly-cal-today">本月</button><button type="button" id="ly-cal-next" aria-label="下一個月">›</button>
+<button type="button" data-cal-view="month" aria-pressed="true">月</button><button type="button" data-cal-view="week" aria-pressed="false">週</button><button type="button" data-cal-view="list" aria-pressed="false">清單</button></div></div>
+<div class="ly-cal-legend"><span><i class="ly-cal-dot ritual"></i>祭典</span><span><i class="ly-cal-dot event"></i>法會活動</span><span><i class="ly-cal-dot admin"></i>行政會議</span><span><i class="ly-cal-dot task"></i>待辦期限</span></div>
+<div id="ly-cal-weekdays" class="ly-cal-weekdays"></div><div id="ly-cal-grid" class="ly-cal-grid"></div><div id="ly-cal-list" class="ly-cal-list" hidden></div>
+<div class="ly-cal-note">點選日期查看詳細工作；活動日期仍以原始資料之確定／推估狀態為準。</div>
+</div>
+<aside class="ly-cal-side"><div class="ly-cal-side-head"><strong id="ly-cal-detail-title">當日行事</strong><div class="meta">活動、負責人與到期待辦</div></div><div id="ly-cal-detail" class="ly-cal-side-body">讀取中…</div></aside>
+</div></section>
   <div class="cols">
     <section>
       <h2>近期行事 <small>未來 90 天</small></h2>
@@ -253,6 +302,54 @@ function statusPill(s, over){
   const map={"已完成":"p-ok","等待他人":"p-mute","取消":"p-mute","進行中":"p-gold","未開始":"p-mute","待確認":"p-warn","備忘":"p-mute","已決議":"p-ok","依往例推估":"p-mute","依章程推估":"p-mute","日期待擲杯":"p-warn","日期待定":"p-warn","建議期限":"p-mute","即將到期":"p-warn","已公告":"p-ok","已確認":"p-ok","會議已決議":"p-ok","固定農曆（多年一致）":"p-ok","待請示／待會議":"p-warn"};
   return `<span class="pill ${map[s]||"p-mute"}">${esc(s||"—")}</span>`;
 }
+
+
+const LY_CAL={y:today.getFullYear(),m:today.getMonth(),date:new Date(today),view:window.matchMedia("(max-width:600px)").matches?"week":"month"};
+const lySame=(a,b)=>a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
+const lyKey=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const lyKind=s=>/會議|行政|公文|申辦|會務/.test(s)?"admin":/禮斗|普渡|法會|進香|平安宴|聖誕/.test(s)?"event":"ritual";
+function lyItems(d){
+ const out=[],seen=new Set();
+ function add(n,kind,info,id){if(!n||seen.has(id))return;seen.add(id);out.push({n,kind,info});}
+ (state.cal||[]).forEach(r=>{if(lySame(toDate(r["國曆日期"]),d))add(r["活動"],lyKind((r["類別"]||"")+" "+(r["活動"]||"")),(r["主辦"]||"")+"・"+(r["日期狀態"]||""),"cal|"+r["活動"]);});
+ (state.lunar||[]).forEach(r=>{if(!lySame(toDate(r["國曆日期"]),d))return;const n=r["項目"]||r["活動"];if(out.some(e=>e.n===n))return;add(n,lyKind((r["類別"]||"")+" "+n),(r["農曆"]||"")+"・"+(r["可信度"]||""),"lunar|"+n);});
+ (state.todo||[]).forEach(r=>{if(isOpen(r)&&lySame(toDate(r["期限"]),d))add(r["待辦事項"],"task",(r["負責"]||"未指派")+"・"+(r["狀態"]||""),"todo|"+r["編號"]);});
+ return out;
+}
+function lyLunar(d){
+ const r=(state.lunar||[]).find(x=>lySame(toDate(x["國曆日期"]),d)&&x["農曆"])||(state.cal||[]).find(x=>lySame(toDate(x["國曆日期"]),d)&&x["農曆"]);
+ return r?(r["農曆"]||"").replace(/^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]年/,""):"";
+}
+function renderLYCalendar(){
+ const grid=$("ly-cal-grid"),lst=$("ly-cal-list");if(!grid)return;
+ $("ly-cal-title").textContent="民國"+(LY_CAL.y-1911)+"年 "+(LY_CAL.m+1)+"月";
+ document.querySelectorAll("[data-cal-view]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.calView===LY_CAL.view)));
+ $("ly-cal-weekdays").hidden=LY_CAL.view==="list";grid.hidden=LY_CAL.view==="list";lst.hidden=LY_CAL.view!=="list";
+ $("ly-cal-weekdays").innerHTML=DOW.map(n=>"<div>週"+n+"</div>").join("");
+ const begin=new Date(LY_CAL.y,LY_CAL.m,1),end=new Date(LY_CAL.y,LY_CAL.m+1,0),start=new Date(begin);
+ if(LY_CAL.view==="week"){start.setTime(LY_CAL.date.getTime());start.setDate(start.getDate()-start.getDay());}
+ else start.setDate(1-begin.getDay());
+ if(LY_CAL.view==="list"){
+  const rows=[];for(let day=1;day<=end.getDate();day++){const d=new Date(LY_CAL.y,LY_CAL.m,day),items=lyItems(d);if(!items.length)continue;
+   rows.push('<button type="button" data-ly-date="'+lyKey(d)+'"><strong style="min-width:55px">'+(d.getMonth()+1)+'/'+day+'<br><small>週'+DOW[d.getDay()]+'</small></strong><span>'+items.map(e=>'<span class="ly-cal-event '+e.kind+'">'+esc(e.n)+'</span>').join("")+'</span></button>');}
+  lst.innerHTML=rows.join("")||'<div class="empty">本月尚無排定事項。</div>';
+ }else{
+  const len=LY_CAL.view==="week"?7:Math.ceil((begin.getDay()+end.getDate())/7)*7,cells=[];
+  for(let i=0;i<len;i++){const d=new Date(start);d.setDate(start.getDate()+i);const items=lyItems(d),chosen=lySame(d,LY_CAL.date);
+   cells.push('<button type="button" data-ly-date="'+lyKey(d)+'" class="ly-cal-day'+(d.getMonth()!==LY_CAL.m?' outside':'')+(chosen?' selected':'')+(lySame(d,today)?' today':'')+'" aria-pressed="'+chosen+'" aria-label="'+lyKey(d)+' '+items.length+'項行事"><span class="ly-cal-dates"><span class="ly-cal-n">'+d.getDate()+'</span><span class="ly-cal-lunar">'+esc(lyLunar(d))+'</span></span><span class="ly-cal-indicators">'+items.slice(0,4).map(e=>'<i class="ly-cal-dot '+e.kind+'"></i>').join("")+'</span>'+items.slice(0,3).map(e=>'<span class="ly-cal-event '+e.kind+'">'+esc(e.n)+'</span>').join("")+(items.length>3?'<span class="ly-cal-more">另有 '+(items.length-3)+' 項</span>':'')+'</button>');
+  }grid.innerHTML=cells.join("");
+ }
+ const d=LY_CAL.date,items=lyItems(d);
+ $("ly-cal-detail-title").textContent=(d.getMonth()+1)+"月"+d.getDate()+"日・週"+DOW[d.getDay()];
+ $("ly-cal-detail").innerHTML=items.length?items.map(e=>'<div class="ly-cal-detail"><strong><i class="ly-cal-dot '+e.kind+'"></i>'+esc(e.n)+'</strong><small>'+esc(e.info)+'</small></div>').join(""):'<div class="empty">本日沒有已登錄的活動或到期待辦。</div>';
+}
+function lySelect(s){const d=toDate(s);if(!d||isNaN(+d))return;LY_CAL.date=d;LY_CAL.y=d.getFullYear();LY_CAL.m=d.getMonth();renderLYCalendar();}
+function lyMove(n){lySelect(lyKey(new Date(LY_CAL.y,LY_CAL.m+n,1)));}
+$("ly-cal-prev").addEventListener("click",()=>lyMove(-1));
+$("ly-cal-next").addEventListener("click",()=>lyMove(1));
+$("ly-cal-today").addEventListener("click",()=>lySelect(lyKey(today)));
+document.querySelectorAll("[data-cal-view]").forEach(b=>b.addEventListener("click",()=>{LY_CAL.view=b.dataset.calView;renderLYCalendar();}));
+["ly-cal-grid","ly-cal-list"].forEach(id=>$(id).addEventListener("click",e=>{const b=e.target.closest("[data-ly-date]");if(b)lySelect(b.dataset.lyDate);}));
 
 function renderSummary(){
   const t=state.todo, c=state.cal;
@@ -480,7 +577,7 @@ function renderGH(){
       <div class="links"><a class="btn" target="_blank" rel="noopener" href="${esc(g.repo)}/blob/main/docs/%E5%B9%B3%E5%8F%B0%E7%B8%BD%E8%A6%BD.md">完整總覽</a><a class="btn" target="_blank" rel="noopener" href="${esc(g.repo)}/issues">待辦卡</a><a class="btn" target="_blank" rel="noopener" href="${esc(g.repo)}/blob/main/docs/%E8%A6%8F%E5%8A%83/%E5%B9%B3%E5%8F%B0%E8%A6%8F%E5%8A%83.md">規劃書</a></div></div>`;
 }
 function renderStrip2(){ if(state.dec) $("s-dec").textContent=state.dec.filter(decOpen).length; }
-function renderAll(){ renderGH(); renderAnnSoon(); renderSummary(); renderEvents(); renderCases(); renderUpcoming(); renderAttention(); renderPanel(); renderFoot(); }
+function renderAll(){ renderLYCalendar(); renderGH(); renderAnnSoon(); renderSummary(); renderEvents(); renderCases(); renderUpcoming(); renderAttention(); renderPanel(); renderFoot(); }
 function renderFoot(){
   if(!builtAt) return;
   const t=new Date(builtAt);
