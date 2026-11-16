@@ -207,7 +207,7 @@ def main():
     (OUT / "data" / "meta.json").write_text(json.dumps({"at": now, "sheets": sheets}, ensure_ascii=False, indent=1), encoding="utf-8")
     # iPhone／Google 行事曆訂閱檔（用剛寫好的已遮蔽 CSV 產生）
     try:
-        n = ics.build(OUT / "data", OUT / "calendar.ics", SITE_URL)
+        n = ics.build(OUT / "data", OUT / "calendar.ics", SITE_URL, OUT / "announcements.json")
         print(f"已產生 calendar.ics：{n} 筆行程")
     except Exception as e:
         print(f"::warning::calendar.ics 產生失敗：{e}")
