@@ -393,6 +393,10 @@ header.editor-header{display:flex;gap:16px;align-items:center;padding:8px 0 20px
               <div><label for="editor-type">文案用途</label><select id="editor-type"><option>LINE 群組通知</option><option>信眾活動宣傳</option><option>工作人員召集</option><option>正式公告</option><option>Facebook 社群貼文</option></select></div>
               <div><label for="editor-topic">主題／活動名稱</label><input id="editor-topic" type="text" placeholder="例如：祈安禮斗法會"></div>
             </div>
+            <div class="editor-form-row editor-tpl-row">
+              <div><label for="editor-tpl">宮內範本（邀請函・文疏・文詞・進香）</label><select id="editor-tpl"><option value="">讀取範本中…</option></select></div>
+              <div><label>&nbsp;</label><button class="editor-button" type="button" id="editor-tpl-apply">套用範本</button> <small id="editor-tpl-use" class="editor-guidance"></small></div>
+            </div>
             <label for="editor-copy-body">文案草稿</label>
             <textarea id="editor-copy-body" rows="7" placeholder="可點選左側「帶入草稿」，或由月曆選擇日期後產生公告草稿。"></textarea>
             <div class="editor-actions">
@@ -882,6 +886,16 @@ document.addEventListener("click",e=>{
 });
 $("editor-from-selected").addEventListener("click",editorBuildFromDate);
 $("editor-create").addEventListener("click",editorBuildBasic);
+let EDITOR_TPL=[];
+function editorTplRender(){
+ const sel=$("editor-tpl");if(!EDITOR_TPL.length){sel.innerHTML='<option value="">範本讀取失敗</option>';return;}
+ const cats=[...new Set(EDITOR_TPL.map(t=>t.cat))];
+ sel.innerHTML='<option value="">— 選擇範本 —</option>'+cats.map(c=>'<optgroup label="'+esc(c)+'">'+EDITOR_TPL.filter(t=>t.cat===c).map(t=>'<option value="'+esc(t.id)+'">'+esc(t.title)+'</option>').join("")+'</optgroup>').join("");
+}
+$("editor-tpl").addEventListener("change",()=>{const t=EDITOR_TPL.find(x=>x.id===$("editor-tpl").value);$("editor-tpl-use").textContent=t?("用途："+t.use):"";});
+$("editor-tpl-apply").addEventListener("click",()=>{const t=EDITOR_TPL.find(x=>x.id===$("editor-tpl").value);if(!t){editorToast("請先選擇範本。");return;}
+ editorSetDraft(t.title,t.body,"已套用範本「"+t.title+"」。【】內請填寫，發布前請人工確認。來源："+t.src);});
+fetch("templates.json",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(d=>{EDITOR_TPL=d.templates||[];editorTplRender();}).catch(()=>{EDITOR_TPL=[];editorTplRender();});
 $("editor-download").addEventListener("click",editorDownload);
 $("editor-copy").addEventListener("click",()=>editorCopy($("editor-copy-body").value));
 $("editor-ai-copy").addEventListener("click",()=>{
