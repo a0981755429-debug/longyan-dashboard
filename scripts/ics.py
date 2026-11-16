@@ -133,7 +133,7 @@ def from_lunar(rows):
             continue
         out.append(_item("lunar", f"{r.get('活動', '')}|{name}|{d.year}", d, name, r.get("類別") or "農曆祭典",
                          _desc(("活動", r.get("活動")), ("農曆", r.get("農曆")), ("時間", r.get("時間")),
-                               ("類別", r.get("類別")), ("可信度", r.get("可信度"))),
+                               ("說明", r.get("說明／工作內容")), ("類別", r.get("類別")), ("可信度", r.get("可信度"))),
                          at=_time(r.get("時間")), days=_days(name)))
     return out
 
