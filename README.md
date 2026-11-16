@@ -11,7 +11,19 @@
 |---|---|
 | `index.html` | 網站本體 |
 | `scripts/build.py` | 讀取試算表、組成網站 |
+| `scripts/ics.py` | 產生 `calendar.ics`（手機行事曆訂閱檔） |
 | `.github/workflows/deploy.yml` | 自動發布排程 |
 | `workflow.json` | 活動流程（整理自 LINE 群組紀錄） |
 | `announcements.json` | 回宮工作公告排程 |
 | `github.json` | GitHub 規劃區塊資料 |
+
+## 訂閱到 iPhone 行事曆
+
+訂閱網址：`https://a0981755429-debug.github.io/longyan-dashboard/calendar.ics`
+
+- 內容：03 年度行事曆＋05 大型活動期程表的每個工作階段；同一活動代碼兩表都有時以 05 為準。
+- 未完成的行程在前一天上午 9:00 提醒；已完成的標「✓」不提醒；取消的不列。
+- 只用網站已公開、已遮蔽的資料，備註欄不放進行事曆。
+- iPhone：設定 → App → 行事曆 → 行事曆帳號 → 加入帳號 → 其他 → 加入已訂閱的行事曆 → 貼上網址 → 下一步 →（若要保留提醒，把「移除提示」關掉）→ 儲存。
+  或在 iPhone Safari 開網站，點右上「📅 訂閱到手機」。
+- Google 日曆：電腦版 → 其他日曆「＋」→ 透過網址新增。
