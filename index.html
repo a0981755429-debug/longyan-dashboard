@@ -394,6 +394,7 @@ header.editor-header{display:flex;gap:16px;align-items:center;padding:8px 0 20px
               <div><label for="editor-type">文案用途</label><select id="editor-type"><option>LINE 群組通知</option><option>信眾活動宣傳</option><option>工作人員召集</option><option>正式公告</option><option>Facebook 社群貼文</option></select></div>
               <div><label for="editor-topic">主題／活動名稱</label><input id="editor-topic" type="text" placeholder="例如：祈安禮斗法會"></div>
             </div>
+            <p id="editor-voice-tip" class="editor-guidance"></p>
             <div class="editor-form-row editor-tpl-row">
               <div><label for="editor-tpl">宮內範本（邀請函・文疏・文詞・進香）</label><select id="editor-tpl"><option value="">讀取範本中…</option></select></div>
               <div><label>&nbsp;</label><button class="editor-button" type="button" id="editor-tpl-apply">套用範本</button> <small id="editor-tpl-use" class="editor-guidance"></small></div>
@@ -862,6 +863,8 @@ function editorBuildFromDate(){
 function editorBuildBasic(){
  const type=$("editor-type").value,subject=$("editor-topic").value.trim()||"宮務公告（請填主題）";
  const formal=type==="正式公告";
+ const vt=formal?null:EDITOR_TPL.find(t=>t.id===((type==="信眾活動宣傳"||type==="Facebook 社群貼文")?"TV06":"TV01"));
+ if(vt){editorSetDraft(subject,vt.body.split("【活動名稱】｜開放報名").join(subject).split("【活動名稱】").join(subject),"已依小編口吻建立「"+type+"」格式；【】內請填寫，查不到的保留【待確認】。");return;}
  const content=formal?"【"+subject+"】\n\n主旨："+subject+"\n\n說明：\n一、【請填日期、時間及地點】\n二、【請填內容及注意事項】\n\n中和玉勅龍延宮 敬啟":"【"+subject+"｜"+type+"】\n\n各位師兄師姐及善信大德平安：\n\n"+subject+"，相關安排如下：\n日期：【待確認】\n時間：【待確認】\n地點：【待確認】\n工作內容：【待確認】\n注意事項：【待確認】\n\n中和玉勅龍延宮 敬邀";
  editorSetDraft(subject,content,"已建立公告格式，請人工確認待填欄位。");
 }
@@ -896,13 +899,22 @@ function editorTplRender(){
 $("editor-tpl").addEventListener("change",()=>{const t=EDITOR_TPL.find(x=>x.id===$("editor-tpl").value);$("editor-tpl-use").textContent=t?("用途："+t.use):"";});
 $("editor-tpl-apply").addEventListener("click",()=>{const t=EDITOR_TPL.find(x=>x.id===$("editor-tpl").value);if(!t){editorToast("請先選擇範本。");return;}
  editorSetDraft(t.title,t.body,"已套用範本「"+t.title+"」。【】內請填寫，發布前請人工確認。來源："+t.src);});
+let EDITOR_VOICE=null;
+function editorVoicePrompt(type,draft){
+ const v=EDITOR_VOICE,list=a=>(a||[]).map(x=>"・"+x).join("\n");
+ if(!v)return "請協助我以「中和玉勅龍延宮」文書組／小編的身分，將以下草稿改寫成「"+type+"」。風格正式、親切、清楚，尊重宗教文化，適合臺灣繁體中文。請保留原有事實及日期；未確認的時間、費用或人員不要自行編造，請標註待確認。請產出可直接審閱的版本。\n\n【原始草稿】\n"+draft;
+ return "請以「中和玉勅龍延宮」小編的口吻，把下面的原始草稿改寫成「"+type+"」，使用臺灣繁體中文。\n\n【本宮口吻】\n"+list(v.common)+"\n\n【這類貼文的寫法】\n"+list(v.byType?.[type])+"\n\n【事實規則，一定要遵守】\n"+list(v.facts)+"\n\n【交稿前自我檢查】\n"+list(v.check)+"\n\n請只回覆改寫後可直接貼出的全文，不要加說明。\n\n【原始草稿】\n"+draft;
+}
+function editorVoiceTip(){const r=EDITOR_VOICE?.byType?.[$("editor-type").value];$("editor-voice-tip").textContent=r?("小編口吻："+r.join(" ")):"";}
+$("editor-type").addEventListener("change",editorVoiceTip);
+fetch("voice.json",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(d=>{EDITOR_VOICE=d;editorVoiceTip();}).catch(()=>{EDITOR_VOICE=null;});
 fetch("templates.json",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(d=>{EDITOR_TPL=d.templates||[];editorTplRender();}).catch(()=>{EDITOR_TPL=[];editorTplRender();});
 $("editor-download").addEventListener("click",editorDownload);
 $("editor-copy").addEventListener("click",()=>editorCopy($("editor-copy-body").value));
 $("editor-ai-copy").addEventListener("click",()=>{
  const draft=$("editor-copy-body").value.trim(),type=$("editor-type").value;
  if(!draft){editorToast("請先建立或帶入草稿。");return;}
- editorCopy("請協助我以「中和玉勅龍延宮」文書組／小編的身分，將以下草稿改寫成「"+type+"」。風格正式、親切、清楚，尊重宗教文化，適合臺灣繁體中文。請保留原有事實及日期；未確認的時間、費用或人員不要自行編造，請標註待確認。請產出可直接審閱的版本。\n\n【原始草稿】\n"+draft);
+ editorCopy(editorVoicePrompt(type,draft));
 });
 document.querySelectorAll(".editor-nav a").forEach(a=>a.addEventListener("click",()=>{
  document.querySelectorAll(".editor-nav a").forEach(v=>v.classList.toggle("is-active",v===a));

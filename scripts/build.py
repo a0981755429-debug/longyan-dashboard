@@ -43,7 +43,7 @@ SHEETS = {
     "rec": ("1osJl3bXDSt2G8u6_dsulcPm-Qb8yAYUTZsUJgzHuvgI", "09 公文與決議追蹤表",
             ["編號", "類型", "日期", "主旨／決議內容", "負責", "狀態"], ["日期", "期限"]),
 }
-STATIC = ["index.html", "robots.txt", "workflow.json", "announcements.json", "github.json"]
+STATIC = ["index.html", "robots.txt", "workflow.json", "announcements.json", "github.json", "templates.json", "voice.json"]
 OUT = pathlib.Path("_site")
 
 # ---- 敏感資訊遮蔽 ----

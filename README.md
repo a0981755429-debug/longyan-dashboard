@@ -16,6 +16,9 @@
 | `workflow.json` | 活動流程（整理自 LINE 群組紀錄） |
 | `announcements.json` | 回宮工作公告排程 |
 | `github.json` | GitHub 規劃區塊資料 |
+| `templates.json` | 小編發文中心的範本（含「小編口吻」8 種骨架） |
+| `voice.json` | 小編口吻規則；「複製給 ChatGPT 的修改指令」會帶入 |
+| `小編口吻指南.md` | 口吻指南全文（整理自祭祀組群組公告，不含人名） |
 
 ## 訂閱到 iPhone 行事曆
 
