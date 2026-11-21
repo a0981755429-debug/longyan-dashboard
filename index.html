@@ -903,7 +903,14 @@ let EDITOR_VOICE=null;
 function editorVoicePrompt(type,draft){
  const v=EDITOR_VOICE,list=a=>(a||[]).map(x=>"・"+x).join("\n");
  if(!v)return "請協助我以「中和玉勅龍延宮」文書組／小編的身分，將以下草稿改寫成「"+type+"」。風格正式、親切、清楚，尊重宗教文化，適合臺灣繁體中文。請保留原有事實及日期；未確認的時間、費用或人員不要自行編造，請標註待確認。請產出可直接審閱的版本。\n\n【原始草稿】\n"+draft;
- return "請以「中和玉勅龍延宮」小編的口吻，把下面的原始草稿改寫成「"+type+"」，使用臺灣繁體中文。\n\n【本宮口吻】\n"+list(v.common)+"\n\n【這類貼文的寫法】\n"+list(v.byType?.[type])+"\n\n【事實規則，一定要遵守】\n"+list(v.facts)+"\n\n【交稿前自我檢查】\n"+list(v.check)+"\n\n請只回覆改寫後可直接貼出的全文，不要加說明。\n\n【原始草稿】\n"+draft;
+ const ex=editorVoiceExample(type,draft);
+ return "請以「中和玉勅龍延宮」小編的口吻，把下面的原始草稿改寫成「"+type+"」，使用臺灣繁體中文。\n\n【本宮口吻】\n"+list(v.common)+"\n\n【這類貼文的寫法】\n"+list(v.byType?.[type])+"\n\n【事實規則，一定要遵守】\n"+list(v.facts)+"\n\n【交稿前自我檢查】\n"+list(v.check)+(ex?"\n\n【本宮粉專真實貼文範例（只學語氣與排版，不要照抄內容與日期）】\n"+ex.text:"")+"\n\n請只回覆改寫後可直接貼出的全文，不要加說明。\n\n【原始草稿】\n"+draft;
+}
+function editorVoiceExample(type,draft){
+ const xs=EDITOR_VOICE?.examples||[];if(!xs.length||!(type==="Facebook 社群貼文"||type==="信眾活動宣傳"))return null;
+ const t=($("editor-topic").value||"")+draft;let best=null,score=0;
+ for(const x of xs){const n=(x.keys||[]).filter(k=>t.includes(k)).length;if(n>score){score=n;best=x;}}
+ return best||xs.find(x=>x.id==="P2")||xs[0];
 }
 function editorVoiceTip(){const r=EDITOR_VOICE?.byType?.[$("editor-type").value];$("editor-voice-tip").textContent=r?("小編口吻："+r.join(" ")):"";}
 $("editor-type").addEventListener("change",editorVoiceTip);
