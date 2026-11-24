@@ -21,6 +21,7 @@ import sys
 import time
 import urllib.request
 
+import fuwu
 import ics
 
 TZ = dt.timezone(dt.timedelta(hours=8))
@@ -211,6 +212,12 @@ def main():
         print(f"已產生 calendar.ics：{n} 筆行程")
     except Exception as e:
         print(f"::warning::calendar.ics 產生失敗：{e}")
+    # 公開服務頁（Google 可搜尋）
+    try:
+        n = fuwu.build(pathlib.Path("fuwu/services.json"), OUT / "fuwu", SITE_URL)
+        print(f"已產生服務頁：{n} 頁")
+    except Exception as e:
+        print(f"::warning::服務頁產生失敗：{e}")
     if all(s["status"] == "failed" for s in sheets.values()):
         sys.exit("所有試算表都無法取得，這次不發布")
 
